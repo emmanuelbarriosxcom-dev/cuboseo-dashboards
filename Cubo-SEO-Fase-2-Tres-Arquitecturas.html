@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="description" content="Comparador de tres propuestas de arquitectura web para Cubo SEO.">
+  <title>Cubo SEO · Tres arquitecturas web · Fase 2</title>
+  <style>
+    .cubo-arch,.cubo-arch *{box-sizing:border-box}
+    .cubo-arch{--bg:#070910;--panel:#0e1320;--panel2:#121827;--ink:#f5f7ff;--muted:#a9b2c8;--line:#283149;--cyan:#6ec1e4;--purple:#6228b2;--pink:#ff3672;--amber:#f2ad4f;--green:#6ee7b7;min-width:320px;margin:0;background:radial-gradient(circle at 75% 0,rgba(98,40,178,.2),transparent 34rem),linear-gradient(#070910,#090d18 56%,#070910);color:var(--ink);font-family:Inter,"Avenir Next",Avenir,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.5}
+    .cubo-arch button,.cubo-arch a{font:inherit}.cubo-arch a{color:inherit}.cubo-arch :focus-visible{outline:3px solid var(--cyan);outline-offset:3px}
+    .ca-shell{width:min(1680px,calc(100% - 40px));margin:auto;padding:32px 0 72px}
+    .ca-top{display:flex;align-items:center;justify-content:space-between;gap:28px;padding:10px 0 34px;border-bottom:1px solid var(--line)}
+    .ca-top img{width:130px;height:auto}.ca-top span{color:var(--muted);font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+    .ca-intro{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(280px,.8fr);gap:42px;padding:56px 0 34px}
+    .eyebrow{margin:0 0 12px;color:var(--cyan);font:800 11px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.15em}
+    .ca-intro h1{max-width:980px;margin:0;font-size:clamp(42px,6vw,82px);line-height:.94;letter-spacing:-.055em}.ca-intro h1 span{color:var(--cyan)}
+    .ca-intro>div>p:last-child{max-width:820px;margin:22px 0 0;color:var(--muted);font-size:17px}
+    .source-note{align-self:end;padding:22px;border-left:3px solid var(--purple);background:rgba(18,24,39,.7)}.source-note strong{display:block;margin-bottom:8px}.source-note p{margin:0;color:var(--muted);font-size:13px}
+    .source-details{margin:0 0 28px;border:1px solid var(--line);border-radius:14px;background:rgba(14,19,32,.75)}
+    .source-details summary{min-height:52px;padding:15px 18px;cursor:pointer;font-weight:800}.source-details>div{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;padding:0 18px 18px}
+    .source-details section{padding:14px;border:1px solid var(--line);border-radius:10px;background:var(--panel)}.source-details h3{margin:0 0 7px;font-size:13px}.source-details p{margin:0;color:var(--muted);font-size:12px}
+    .arch-tabs{position:sticky;z-index:30;top:0;display:flex;gap:8px;padding:12px 0;margin-bottom:28px;background:rgba(7,9,16,.94);backdrop-filter:blur(16px)}
+    .arch-tabs button{flex:1;min-height:54px;padding:10px 14px;border:1px solid var(--line);border-radius:11px;background:var(--panel);color:var(--muted);cursor:pointer;font-weight:850}
+    .arch-tabs button[aria-selected=true]{border-color:var(--cyan);background:linear-gradient(135deg,rgba(110,193,228,.17),rgba(98,40,178,.16));color:#fff;box-shadow:inset 0 0 0 1px rgba(110,193,228,.18)}
+    .arch-tabs small{display:block;font-size:10px;letter-spacing:.12em}
+    .architecture-panel{padding:30px;border:1px solid var(--line);border-radius:22px;background:rgba(10,14,24,.84);box-shadow:0 28px 90px rgba(0,0,0,.25)}
+    .option-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,.55fr);gap:30px;align-items:end}
+    .option-head h2{margin:0;font-size:clamp(30px,4vw,52px);line-height:1;letter-spacing:-.045em}.option-head>div>p:last-child{max-width:850px;margin:14px 0 0;color:var(--muted)}
+    .tradeoff{padding:17px;border:1px solid var(--line);border-radius:12px;background:var(--panel)}.tradeoff span{color:var(--pink);font-size:11px;font-weight:900;letter-spacing:.1em;text-transform:uppercase}
+    .tradeoff p{margin:8px 0 0;color:var(--muted);font-size:12px}.tradeoff b{color:#fff}
+    .nav-map,.crosslinks{display:grid;grid-template-columns:190px 1fr;gap:16px;align-items:center;margin-top:28px;padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:#0a0e18}
+    .nav-map strong,.crosslinks strong,.footer-label{color:var(--muted);font-size:10px;font-weight:900;letter-spacing:.12em}
+    .nav-map>div,.crosslinks>div{display:flex;flex-wrap:wrap;gap:7px}.nav-map span,.crosslinks span{padding:7px 9px;border-radius:7px;background:var(--panel2);font-size:11px;font-weight:800}
+    .tree-stage{position:relative;margin:34px 0 28px;padding-top:4px}.tree-root{display:flex;justify-content:center}.root-stem{width:2px;height:40px;margin:auto;background:var(--line)}
+    .branches{position:relative;display:grid;grid-template-columns:repeat(var(--branch-count),minmax(0,1fr));gap:15px;padding-top:40px}
+    .branches:before{position:absolute;content:"";top:0;left:calc((100% / var(--branch-count)) / 2);right:calc((100% / var(--branch-count)) / 2);height:2px;background:var(--line)}
+    .branch{position:relative;min-width:0}.branch-stem{position:absolute;top:-40px;left:50%;width:2px;height:40px;background:var(--line)}
+    .arch-node{position:relative;display:flex;width:100%;min-height:84px;flex-direction:column;align-items:flex-start;justify-content:center;gap:4px;padding:13px;border:1px solid var(--line);border-top:3px solid var(--cyan);border-radius:12px;background:linear-gradient(145deg,#121827,#0d1320);color:var(--ink);text-align:left;cursor:pointer;box-shadow:0 10px 26px rgba(0,0,0,.18);transition:transform .18s ease,border-color .18s ease,background .18s ease}
+    .arch-node:hover{transform:translateY(-2px);border-color:var(--cyan)}.arch-node[aria-pressed=true]{border-color:var(--pink);background:linear-gradient(145deg,rgba(255,54,114,.11),rgba(98,40,178,.18))}
+    .arch-node strong{font-size:13px;line-height:1.25}.arch-node code{max-width:100%;overflow-wrap:anywhere;color:var(--muted);font-size:9px}
+    .node-status{color:var(--cyan);font:850 8px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.08em}
+    .root-node{width:min(440px,100%);min-height:98px;border-color:var(--purple);border-top-color:var(--pink);background:linear-gradient(135deg,rgba(98,40,178,.32),rgba(14,19,32,.95))}.root-node strong{font-size:19px}
+    .primary-node{min-height:98px}.status-new{border-top-color:var(--pink)}.status-new .node-status{color:var(--pink)}
+    .status-review{border-top-color:var(--amber)}.status-review .node-status{color:var(--amber)}
+    .status-group{border-top-color:#8792aa;border-style:dashed}.status-group .node-status{color:#bdc5d8}
+    .status-future{border-top-color:var(--green);border-style:dashed}.status-future .node-status{color:var(--green)}
+    .node-children{position:relative;margin:20px 0 0 14px;padding-left:15px;border-left:1px solid var(--line)}.child-row{position:relative;margin-top:11px}
+    .child-row:before{position:absolute;content:"";top:36px;left:-15px;width:15px;height:1px;background:var(--line)}.node-children .arch-node{min-height:72px;padding:11px}
+    .node-children.depth-2{margin-left:9px;padding-left:12px}.node-children.depth-2 .child-row:before{left:-12px;width:12px}
+    .node-detail{margin:30px 0 0;padding:22px;border:1px solid rgba(110,193,228,.34);border-radius:15px;background:linear-gradient(135deg,rgba(110,193,228,.08),rgba(98,40,178,.08))}
+    .detail-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:24px}.detail-heading h3{margin:4px 0 3px;font-size:22px}
+    .detail-heading span{color:var(--cyan);font:850 9px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.1em}.detail-heading code{color:var(--muted);font-size:11px}.detail-heading>p{margin:0;color:var(--muted);font-size:11px}
+    .detail-grid{display:grid;grid-template-columns:1.1fr .8fr .7fr 1.4fr;gap:12px;margin-top:18px}.detail-grid section{padding:13px;border-left:1px solid var(--line)}
+    .detail-grid h4{margin:0 0 6px;color:var(--muted);font-size:10px;letter-spacing:.1em;text-transform:uppercase}.detail-grid p{margin:0;font-size:12px}
+    .paths{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}.path-row{padding:15px;border:1px solid var(--line);border-radius:12px;background:var(--panel)}
+    .path-row>strong{display:block;margin-bottom:10px;color:var(--muted);font-size:10px;letter-spacing:.1em;text-transform:uppercase}.path-row>div{display:flex;flex-wrap:wrap;align-items:center;gap:7px}
+    .path-row span{font-size:11px;font-weight:800}.path-row i{color:var(--pink);font-style:normal}
+    .footer-label{margin-top:25px}.footer-map{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:10px}
+    .footer-map section{padding:14px;border:1px solid var(--line);border-radius:10px;background:#0a0e18}.footer-map h4{margin:0 0 8px;font-size:12px}.footer-map p{margin:0;color:var(--muted);font-size:10px;line-height:1.7}
+    .downloads{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}.downloads a{display:inline-flex;min-height:42px;align-items:center;padding:9px 13px;border:1px solid var(--line);border-radius:9px;text-decoration:none;font-size:11px;font-weight:850}
+    .downloads a:hover{border-color:var(--cyan);color:var(--cyan)}
+    .inventory{margin-top:30px}.inventory details{border:1px solid var(--line);border-radius:12px;background:var(--panel)}.inventory summary{padding:16px;cursor:pointer;font-weight:850}
+    .inventory-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:0 16px 16px}.inventory-grid article{padding:13px;border:1px solid var(--line);border-radius:9px;background:#0a0e18}
+    .inventory-grid h3{margin:0 0 6px;font-size:12px}.inventory-grid p{margin:0;color:var(--muted);font-size:10px}
+    .ca-final{display:grid;grid-template-columns:1.2fr .8fr;gap:24px;margin-top:34px;padding:24px;border-top:1px solid var(--line)}.ca-final h2{margin:0;font-size:28px}.ca-final p{margin:10px 0 0;color:var(--muted);font-size:13px}.ca-final strong{color:var(--cyan)}
+    @media(max-width:1180px){.branches{grid-template-columns:repeat(2,minmax(0,1fr));padding-top:0}.branches:before,.branch-stem,.root-stem{display:none}.branch{padding:12px;border-left:1px solid var(--line)}.detail-grid{grid-template-columns:1fr 1fr}.footer-map{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:760px){.ca-shell{width:calc(100% - 22px);padding-top:18px}.ca-top{padding-bottom:20px}.ca-top img{width:110px}.ca-intro{grid-template-columns:1fr;gap:22px;padding-top:38px}.ca-intro h1{font-size:45px}.source-details>div{grid-template-columns:1fr}.arch-tabs{position:static;display:grid;grid-template-columns:1fr;gap:7px;padding:8px 0 18px;background:transparent;backdrop-filter:none}.arch-tabs button{width:100%;min-height:50px;min-width:0;flex:none}.architecture-panel{padding:17px;border-radius:16px}.option-head{grid-template-columns:1fr}.nav-map,.crosslinks{grid-template-columns:1fr}.branches{grid-template-columns:1fr}.branch{padding:14px 0 14px 13px}.root-node{width:100%}.detail-heading{display:block}.detail-heading>p{margin-top:12px}.detail-grid,.paths,.footer-map,.inventory-grid,.ca-final{grid-template-columns:1fr}.downloads{justify-content:stretch}.downloads a{flex:1;justify-content:center}}
+    @media(prefers-reduced-motion:reduce){.arch-node{transition:none}}
+  </style>
+</head>
+<body class="cubo-arch">
+  <div class="ca-shell">
+    <header class="ca-top">
+      <img src="https://cuboseo.com/wp-content/uploads/2026/09/cubo-seo-logo-transparente-web-1200.webp" width="106" height="40" alt="Cubo SEO">
+      <span>Fase 2 · Arquitectura para validar</span>
+    </header>
+    <main>
+      <section class="ca-intro">
+        <div>
+          <p class="eyebrow">PROPUESTA 03 ELEGIDA · SISTEMA TECNOLÓGICO</p>
+          <h1>Tres formas de ordenar <span>todo el sitio.</span></h1>
+          <p>Las tres conservan las URLs útiles, priorizan SEO, separan la ruta comercial de la profesional y evitan crear páginas delgadas. Cambia la lógica de navegación, no la dirección visual.</p>
+        </div>
+        <aside class="source-note">
+          <strong>Estado del mapa</strong>
+          <p>Propuesta de arquitectura, no cambios ejecutados. Contactos, equipo, cifras, permisos de casos y datos profesionales siguen pendientes de confirmar.</p>
+        </aside>
+      </section>
+
+      <details class="source-details">
+        <summary>Fuentes revisadas y límites</summary>
+        <div>
+          <section><h3>Web pública revisada</h3><p>Homepage, navegación, header/footer, sitemap Yoast, 15 páginas, 12 posts, archivos de categoría/autor, estados HTTP y meta robots.</p></section>
+          <section><h3>Proyecto revisado</h3><p>Estrategia pre-rediseño 2026, estrategia de arquitectura y copy 2026, brief de marca sin respuestas y Propuesta 03.</p></section>
+          <section><h3>No disponible</h3><p>Search Console, Analytics, backlinks, respuestas del brief, datos locales del brief interactivo, permisos de clientes y contactos definitivos.</p></section>
+        </div>
+      </details>
+
+      <nav class="arch-tabs" role="tablist" aria-label="Comparar arquitecturas">
+        <button id="tab-a" type="button" role="tab" aria-selected="true"><small>01 · RECOMENDADA</small>Servicios claros</button>
+        <button id="tab-b" type="button" role="tab" aria-selected="false"><small>02</small>Sistema de captación</button>
+        <button id="tab-c" type="button" role="tab" aria-selected="false"><small>03</small>Doble recorrido</button>
+      </nav>
+
+      <section id="architecture-panel" class="architecture-panel" aria-live="polite"></section>
+
+      <section class="inventory">
+        <details>
+          <summary>Inventario y decisiones comunes a las tres alternativas</summary>
+          <div class="inventory-grid">
+            <article><h3>Conservar URLs de servicio</h3><p>/seo/, /diseno-y-desarrollo-web/, /marketing-de-contenidos/, publicidad, email y redes. No moverlas bajo /servicios/.</p></article>
+            <article><h3>Revisar noindex</h3><p>/quienes-somos/, /contacto/, /nuestro-trabajo/ y /blog/ están accesibles pero marcadas noindex, nofollow.</p></article>
+            <article><h3>Portafolio inglés existente</h3><p>/emmanuel-barrios-portfolio-english/ está indexada y contiene un embed de Canva. Conservar y reconstruir antes de plantear otro slug.</p></article>
+            <article><h3>Contenido actual</h3><p>Conservar inicialmente los 12 slugs de artículos. Actualizar, consolidar o redirigir solo con datos de tráfico, enlaces y calidad.</p></article>
+            <article><h3>Legal</h3><p>Conservar cookies y términos; proponer /aviso-de-privacidad/ para el formulario, con revisión legal.</p></article>
+            <article><h3>Ruido técnico</h3><p>/sample-page/ no aporta valor: proponer borrador o 410 tras validar. Revisar /category/uncategorized/ y /author/; no redirigirlos a Home.</p></article>
+            <article><h3>Casos</h3><p>Conservar /nuestro-trabajo/. Crear casos individuales solo con reto, alcance, periodo, evidencia y autorización.</p></article>
+            <article><h3>Búsqueda con IA</h3><p>Integrarla dentro de /seo/ junto al SEO clásico. No crear una página GEO/AEO aislada en esta fase.</p></article>
+            <article><h3>Contacto</h3><p>Teléfonos, ciudades, correos públicos y tiempo de respuesta quedan pendientes de confirmar; no se fija ninguno en el mapa.</p></article>
+          </div>
+        </details>
+      </section>
+
+      <section class="ca-final">
+        <div><h2>Recomendación</h2><p><strong>Arquitectura 01 — Servicios claros</strong> como base: es la más fácil de navegar, mantiene poca profundidad y deja SEO visible sin diluirlo. El relato de “sistema de captación” de la opción 02 puede vivir dentro de /servicios/ y de la homepage sin obligar a organizar todo el sitio por etapas.</p></div>
+        <p>Ninguna URL, redirección, indexación ni página está aprobada o ejecutada. La siguiente decisión es elegir una arquitectura o indicar qué ramas combinar.</p>
+      </section>
+    </main>
+  </div>
+
+  <script id="architecture-data" type="application/json">
+  {
+    "statusLabels":{"existing":"EXISTENTE","new":"NUEVA","review":"EXISTENTE · REVISAR","group":"AGRUPADOR · SIN URL","future":"FUTURA CON EVIDENCIA"},
+    "pages":{
+      "home":{"name":"Homepage","url":"/","status":"existing","purpose":"Presentar el sistema de captación, filtrar encaje y dirigir a servicios, evidencia o trayectoria.","intent":"Marca y exploración comercial.","cta":"Evaluar encaje / Ver SEO.","decision":"Conservar URL y reconstruir contenido. SEO debe dominar la jerarquía."},
+      "services":{"name":"Servicios","url":"/servicios/","status":"new","purpose":"Explicar cómo SEO, web y capacidades de apoyo forman un sistema conectado.","intent":"Exploración comercial de servicios.","cta":"Ver SEO / Solicitar evaluación.","decision":"Crear como hub. Mantener las URLs planas actuales de cada servicio."},
+      "seo":{"name":"SEO","url":"/seo/","status":"existing","purpose":"Servicio principal: diagnóstico, investigación, arquitectura, SEO técnico, contenido y medición.","intent":"Contratación de servicio SEO.","cta":"Solicitar evaluación SEO.","decision":"Conservar URL. Integrar búsqueda con IA, GEO/AEO dentro de la página, no como servicio separado."},
+      "web":{"name":"Diseño y desarrollo web","url":"/diseno-y-desarrollo-web/","status":"existing","purpose":"Infraestructura web, experiencia, rendimiento y conversión que sostiene la captación.","intent":"Contratación de diseño, rediseño o desarrollo web.","cta":"Evaluar el sitio.","decision":"Conservar URL y situarla después de SEO."},
+      "content":{"name":"Marketing de contenidos","url":"/marketing-de-contenidos/","status":"existing","purpose":"Contenido guiado por intención de búsqueda y evidencia para atraer y ayudar a decidir.","intent":"Contratación de estrategia y contenido.","cta":"Revisar estrategia de contenidos.","decision":"Conservar URL como capacidad conectada a SEO."},
+      "ads":{"name":"Publicidad digital","url":"/anuncios-y-campanas-de-publicidad/","status":"existing","purpose":"Capacidad complementaria para activar demanda cuando el alcance real se confirme.","intent":"Contratación de campañas de publicidad.","cta":"Consultar alcance.","decision":"Conservar por ahora; validar que siga en la oferta antes de darle protagonismo."},
+      "email":{"name":"Email marketing","url":"/email-marketing/","status":"existing","purpose":"Capacidad complementaria para nutrir relaciones y recorridos de decisión.","intent":"Contratación de email marketing.","cta":"Consultar alcance.","decision":"Conservar por ahora; revisar contenido y restos de plantilla."},
+      "social":{"name":"Redes sociales","url":"/manejo-de-redes-sociales/","status":"existing","purpose":"Capacidad complementaria de presencia y distribución.","intent":"Contratación de manejo de redes.","cta":"Consultar alcance.","decision":"Conservar por ahora; validar alcance actual antes de promoverla."},
+      "method":{"name":"Cómo trabajamos","url":"/como-trabajamos/","status":"new","purpose":"Mostrar encaje, diagnóstico, roadmap, implementación, medición y siguiente ciclo.","intent":"Validación de proveedor y proceso.","cta":"Comprobar encaje.","decision":"Crear. Reduce objeciones sin duplicar las páginas de servicio."},
+      "cases":{"name":"Casos de éxito","url":"/nuestro-trabajo/","status":"review","purpose":"Evidencia comercial: reto, alcance, periodo, intervención y resultados autorizados.","intent":"Validación de experiencia y resultados.","cta":"Ver caso / Hablar del proyecto.","decision":"Conservar URL y cambiar la etiqueta visible. Actualmente es una galería sin casos documentados y está noindex."},
+      "caseTemplate":{"name":"Caso individual","url":"/nuestro-trabajo/[caso]/","status":"future","purpose":"Documentar un proyecto concreto con evidencia verificable.","intent":"Validación por sector, problema o servicio.","cta":"Ver servicio relacionado.","decision":"Crear solo cuando existan datos, permiso y contexto suficientes. No generar páginas vacías."},
+      "blog":{"name":"Recursos / Blog","url":"/blog/","status":"review","purpose":"Concentrar contenido útil para búsqueda, autoridad y apoyo a la decisión.","intent":"Información y educación comercial.","cta":"Leer guía / Ver servicio relacionado.","decision":"Conservar URL. Está noindex actualmente; revisar antes del relanzamiento."},
+      "articles":{"name":"12 artículos actuales","url":"/blog/ + slugs existentes","status":"existing","purpose":"Inventario actual de contenidos; cada artículo debe apoyar un tema y una página comercial.","intent":"Informacional según cada artículo.","cta":"Continuar a SEO, web o contacto.","decision":"Conservar slugs inicialmente. Consolidar solo tras revisar tráfico, enlaces y calidad."},
+      "about":{"name":"Quiénes somos","url":"/quienes-somos/","status":"review","purpose":"Presentar Cubo SEO como empresa: historia, modelo boutique, responsables y colaboración.","intent":"Confianza en la empresa.","cta":"Conocer el método / Contactar.","decision":"Conservar URL. Está noindex; validar historia, equipo y cargos antes de reutilizar."},
+      "profile":{"name":"Perfil profesional","url":"/perfil-profesional/","status":"new","purpose":"Puerta separada para reclutadores sin convertir la homepage comercial en un CV.","intent":"Búsqueda de perfil y validación profesional.","cta":"Ver CV / Ver portafolio.","decision":"Crear como hub claramente personal."},
+      "cv":{"name":"Currículum","url":"/curriculum/","status":"new","purpose":"Trayectoria, competencias, experiencia y versión descargable verificadas.","intent":"Consulta profesional y reclutamiento.","cta":"Descargar CV / Contactar.","decision":"Crear con datos confirmados."},
+      "portfolio":{"name":"Portafolio","url":"/portafolio/","status":"new","purpose":"Selección de entregables y capacidades; no exige métricas públicas en cada pieza.","intent":"Evaluación de trabajo profesional.","cta":"Ver proyecto / Ver CV.","decision":"Crear. No duplicar los casos comerciales: enlazar a ellos cuando corresponda."},
+      "portfolioEn":{"name":"Portfolio — English","url":"/emmanuel-barrios-portfolio-english/","status":"review","purpose":"Ruta profesional existente en inglés para reclutadores internacionales.","intent":"Branded professional search in English.","cta":"View experience / Contact.","decision":"Conservar temporalmente y reconstruir: hoy es un embed de Canva con poco contenido HTML. Un cambio de URL requeriría equivalente y 301."},
+      "contact":{"name":"Contacto","url":"/contacto/","status":"review","purpose":"Evaluar encaje y recoger la información mínima para el siguiente paso.","intent":"Contacto y conversión.","cta":"Enviar solicitud.","decision":"Conservar URL. Está noindex. Teléfonos, ubicaciones y tiempos quedan pendientes de confirmar."},
+      "visibilityGroup":{"name":"1 · Visibilidad","url":"Agrupador; sin URL propia","status":"group","purpose":"Agrupar SEO, contenido y experiencias de búsqueda con IA.","intent":"Navegación conceptual.","cta":"Abrir SEO.","decision":"No crear página adicional; es una capa explicativa dentro de /servicios/."},
+      "aiSection":{"name":"Búsqueda con IA","url":"Sección dentro de /seo/","status":"group","purpose":"Explicar visibilidad en experiencias de búsqueda con IA junto al SEO clásico.","intent":"Parte de la evaluación SEO.","cta":"Ver enfoque SEO.","decision":"No crear URL separada en esta fase."},
+      "experienceGroup":{"name":"2 · Experiencia y conversión","url":"Agrupador; sin URL propia","status":"group","purpose":"Conectar la llegada del usuario con una web útil, convincente y medible.","intent":"Navegación conceptual.","cta":"Abrir web.","decision":"No crear página adicional."},
+      "activationGroup":{"name":"3 · Activación y relación","url":"Agrupador; sin URL propia","status":"group","purpose":"Agrupar publicidad, email y redes como capacidades complementarias.","intent":"Navegación conceptual.","cta":"Consultar alcance.","decision":"No crear página adicional."},
+      "measureGroup":{"name":"4 · Método y medición","url":"/como-trabajamos/","status":"new","purpose":"Explicar decisiones, implementación, medición y aprendizaje.","intent":"Validación del proceso.","cta":"Ver cómo trabajamos.","decision":"Crear la página /como-trabajamos/."},
+      "supportGroup":{"name":"Capacidades de apoyo","url":"Agrupador; sin URL propia","status":"group","purpose":"Evitar que contenido, publicidad, email y redes compitan en jerarquía con SEO y web.","intent":"Exploración secundaria.","cta":"Ver capacidad.","decision":"Agrupación de navegación, no página nueva."},
+      "companyRoute":{"name":"Ruta para empresas","url":"/servicios/","status":"new","purpose":"Entrada comercial única para servicios, método, evidencia y contacto.","intent":"Exploración y contratación.","cta":"Comprobar encaje.","decision":"Usar /servicios/ como hub; no crear un slug redundante /para-empresas/."}
+    },
+    "commonFooter":[
+      {"title":"Comercial","links":["SEO","Diseño y desarrollo web","Casos","Contacto"]},
+      {"title":"Profesional","links":["Perfil profesional","Currículum","Portafolio","Portfolio — English"]},
+      {"title":"Empresa y recursos","links":["Quiénes somos","Cómo trabajamos","Blog"]},
+      {"title":"Legal","links":["Aviso de privacidad · nueva","Política de cookies","Términos y condiciones"]}
+    ],
+    "options":[
+      {
+        "id":"a","number":"01","title":"Servicios claros","label":"La más directa",
+        "summary":"Arquitectura convencional y muy legible: servicios, método, evidencia, recursos, empresa, perfil y contacto.",
+        "advantage":"Encuentra rápido una página concreta y mantiene poca profundidad.",
+        "sacrifice":"El concepto de sistema se explica dentro de /servicios/, no organiza todo el árbol.",
+        "header":["Servicios ▾","Cómo trabajamos","Casos","Recursos","Perfil profesional","Contacto · CTA"],
+        "routeClient":["Inicio","SEO","Caso","Cómo trabajamos","Contacto"],
+        "routeRecruiter":["Inicio","Perfil profesional","CV o Portafolio","Casos"],
+        "crosslinks":["SEO ↔ Web","SEO ↔ Contenidos","Caso → servicios usados","Perfil → casos"],
+        "download":"arquitectura-01-servicios-claros.svg",
+        "branches":[
+          {"page":"services","children":[{"page":"seo"},{"page":"web"},{"page":"content"},{"page":"supportGroup","children":[{"page":"ads"},{"page":"email"},{"page":"social"}]}]},
+          {"page":"method"},
+          {"page":"cases","children":[{"page":"caseTemplate"}]},
+          {"page":"blog","children":[{"page":"articles"}]},
+          {"page":"about"},
+          {"page":"profile","children":[{"page":"cv"},{"page":"portfolio"},{"page":"portfolioEn"}]},
+          {"page":"contact"}
+        ]
+      },
+      {
+        "id":"b","number":"02","title":"Sistema de captación","label":"La más diferencial",
+        "summary":"Ordena la oferta por el recorrido de captación: visibilidad, experiencia, activación y medición.",
+        "advantage":"Explica mejor cómo las capacidades trabajan juntas y encaja con la dirección tecnológica.",
+        "sacrifice":"Añade una capa conceptual; el header debe ofrecer accesos directos a SEO y web.",
+        "header":["Sistema ▾","SEO","Web","Casos","Recursos","Perfil profesional","Contacto · CTA"],
+        "routeClient":["Inicio","Sistema","SEO o Web","Caso","Contacto"],
+        "routeRecruiter":["Inicio","Perfil profesional","Portafolio","Casos"],
+        "crosslinks":["Etapa → servicio","SEO ↔ Web","Caso → etapa aplicada","Perfil → casos"],
+        "download":"arquitectura-02-sistema-captacion.svg",
+        "branches":[
+          {"page":"services","children":[{"page":"visibilityGroup","children":[{"page":"seo"},{"page":"content"},{"page":"aiSection"}]},{"page":"experienceGroup","children":[{"page":"web"}]},{"page":"activationGroup","children":[{"page":"ads"},{"page":"email"},{"page":"social"}]},{"page":"measureGroup"}]},
+          {"page":"cases","children":[{"page":"caseTemplate"}]},
+          {"page":"blog","children":[{"page":"articles"}]},
+          {"page":"about"},
+          {"page":"profile","children":[{"page":"cv"},{"page":"portfolio"},{"page":"portfolioEn"}]},
+          {"page":"contact"}
+        ]
+      },
+      {
+        "id":"c","number":"03","title":"Doble recorrido","label":"La más segmentada",
+        "summary":"Separa desde el primer nivel la ruta comercial para empresas y la ruta profesional para reclutadores.",
+        "advantage":"Evita mezclar la propuesta de la agencia con la trayectoria personal.",
+        "sacrifice":"La rama Para empresas concentra más páginas y exige un mega menú móvil disciplinado.",
+        "header":["Para empresas ▾","Casos","Recursos","Quiénes somos","Perfil profesional","Contacto · CTA"],
+        "routeClient":["Inicio","Para empresas","SEO o Caso","Contacto"],
+        "routeRecruiter":["Inicio","Perfil profesional","CV o Portafolio","Casos"],
+        "crosslinks":["Empresa → método","Caso → servicio","Perfil → casos","Artículo → servicio"],
+        "download":"arquitectura-03-doble-recorrido.svg",
+        "branches":[
+          {"page":"companyRoute","children":[{"page":"seo"},{"page":"web"},{"page":"supportGroup","children":[{"page":"content"},{"page":"ads"},{"page":"email"},{"page":"social"}]},{"page":"method"},{"page":"cases","children":[{"page":"caseTemplate"}]}]},
+          {"page":"profile","children":[{"page":"cv"},{"page":"portfolio"},{"page":"portfolioEn"}]},
+          {"page":"blog","children":[{"page":"articles"}]},
+          {"page":"about"},
+          {"page":"contact"}
+        ]
+      }
+    ]
+  }
+  </script>
+  <script>
+    (function(){
+      var data=JSON.parse(document.getElementById("architecture-data").textContent);
+      var pages=data.pages;
+      var panel=document.getElementById("architecture-panel");
+      var tabs=Array.prototype.slice.call(document.querySelectorAll("[role=tab]"));
+
+      function element(tag,className,text){
+        var node=document.createElement(tag);
+        if(className)node.className=className;
+        if(text!==undefined)node.textContent=text;
+        return node;
+      }
+
+      function nodeButton(pageId,modifier){
+        var page=pages[pageId];
+        var button=element("button","arch-node status-"+page.status+" "+(modifier||""));
+        button.type="button";
+        button.setAttribute("data-page-id",pageId);
+        button.setAttribute("aria-pressed","false");
+        button.appendChild(element("span","node-status",data.statusLabels[page.status]));
+        button.appendChild(element("strong","",page.name));
+        button.appendChild(element("code","",page.url));
+        button.addEventListener("click",function(){fillDetail(pageId);});
+        return button;
+      }
+
+      function childList(children,depth){
+        if(!children||!children.length)return null;
+        var list=element("div","node-children depth-"+depth);
+        children.forEach(function(child){
+          var row=element("div","child-row");
+          row.appendChild(nodeButton(child.page,child.children?"has-descendants":""));
+          var nested=childList(child.children,depth+1);
+          if(nested)row.appendChild(nested);
+          list.appendChild(row);
+        });
+        return list;
+      }
+
+      function pills(items){
+        var wrap=element("div");
+        items.forEach(function(item){wrap.appendChild(element("span","",item));});
+        return wrap;
+      }
+
+      function pathRow(label,items){
+        var row=element("div","path-row");
+        row.appendChild(element("strong","",label));
+        var values=element("div");
+        items.forEach(function(item,index){
+          values.appendChild(element("span","",item));
+          if(index<items.length-1)values.appendChild(element("i","","→"));
+        });
+        row.appendChild(values);
+        return row;
+      }
+
+      function detailSection(title,attr){
+        var section=element("section");
+        section.appendChild(element("h4","",title));
+        var paragraph=element("p");
+        paragraph.setAttribute("data-detail-"+attr,"");
+        section.appendChild(paragraph);
+        return section;
+      }
+
+      function fillDetail(pageId){
+        var page=pages[pageId];
+        panel.querySelectorAll(".arch-node").forEach(function(node){
+          node.setAttribute("aria-pressed",String(node.getAttribute("data-page-id")===pageId));
+        });
+        panel.querySelector("[data-detail-status]").textContent=data.statusLabels[page.status];
+        panel.querySelector("[data-detail-name]").textContent=page.name;
+        panel.querySelector("[data-detail-url]").textContent=page.url;
+        panel.querySelector("[data-detail-purpose]").textContent=page.purpose;
+        panel.querySelector("[data-detail-intent]").textContent=page.intent;
+        panel.querySelector("[data-detail-cta]").textContent=page.cta;
+        panel.querySelector("[data-detail-decision]").textContent=page.decision;
+      }
+
+      function render(option){
+        panel.replaceChildren();
+
+        var head=element("header","option-head");
+        var titleBlock=element("div");
+        titleBlock.appendChild(element("p","eyebrow","ARQUITECTURA "+option.number));
+        titleBlock.appendChild(element("h2","",option.title));
+        titleBlock.appendChild(element("p","",option.summary));
+        var trade=element("div","tradeoff");
+        trade.appendChild(element("span","",option.label));
+        var advantage=element("p");advantage.innerHTML="<b>Ventaja:</b> "+option.advantage;
+        var sacrifice=element("p");sacrifice.innerHTML="<b>Sacrificio:</b> "+option.sacrifice;
+        trade.appendChild(advantage);trade.appendChild(sacrifice);
+        head.appendChild(titleBlock);head.appendChild(trade);panel.appendChild(head);
+
+        var nav=element("div","nav-map");
+        nav.appendChild(element("strong","","HEADER PROPUESTO"));
+        nav.appendChild(pills(option.header));
+        panel.appendChild(nav);
+
+        var stage=element("div","tree-stage");
+        stage.style.setProperty("--branch-count",String(option.branches.length));
+        var root=element("div","tree-root");root.appendChild(nodeButton("home","root-node"));stage.appendChild(root);
+        stage.appendChild(element("div","root-stem"));
+        var branches=element("div","branches");
+        option.branches.forEach(function(branch){
+          var article=element("article","branch");
+          article.appendChild(element("div","branch-stem"));
+          article.appendChild(nodeButton(branch.page,"primary-node"));
+          var children=childList(branch.children,1);if(children)article.appendChild(children);
+          branches.appendChild(article);
+        });
+        stage.appendChild(branches);panel.appendChild(stage);
+
+        var detail=element("aside","node-detail");
+        detail.setAttribute("aria-live","polite");
+        var detailHead=element("div","detail-heading");
+        var detailName=element("div");
+        var status=element("span");status.setAttribute("data-detail-status","");
+        var name=element("h3");name.setAttribute("data-detail-name","");
+        var url=element("code");url.setAttribute("data-detail-url","");
+        detailName.appendChild(status);detailName.appendChild(name);detailName.appendChild(url);
+        detailHead.appendChild(detailName);detailHead.appendChild(element("p","","Selecciona cualquier tarjeta para ver su detalle."));
+        detail.appendChild(detailHead);
+        var detailGrid=element("div","detail-grid");
+        detailGrid.appendChild(detailSection("Finalidad","purpose"));
+        detailGrid.appendChild(detailSection("Intención","intent"));
+        detailGrid.appendChild(detailSection("CTA","cta"));
+        detailGrid.appendChild(detailSection("Decisión propuesta","decision"));
+        detail.appendChild(detailGrid);panel.appendChild(detail);
+
+        var cross=element("div","crosslinks");
+        cross.appendChild(element("strong","","ENLAZADO TRANSVERSAL · NO ES JERARQUÍA"));
+        cross.appendChild(pills(option.crosslinks));panel.appendChild(cross);
+
+        var paths=element("div","paths");
+        paths.appendChild(pathRow("Ruta cliente",option.routeClient));
+        paths.appendChild(pathRow("Ruta reclutador",option.routeRecruiter));
+        panel.appendChild(paths);
+
+        panel.appendChild(element("div","footer-label","FOOTER PROPUESTO · NAVEGACIÓN, NO DEPENDENCIA"));
+        var footer=element("div","footer-map");
+        data.commonFooter.forEach(function(group){
+          var section=element("section");
+          section.appendChild(element("h4","",group.title));
+          section.appendChild(element("p","",group.links.join(" · ")));
+          footer.appendChild(section);
+        });
+        panel.appendChild(footer);
+
+        var downloads=element("div","downloads");
+        var svg=element("a","","Descargar SVG");
+        svg.href=option.download;svg.setAttribute("download","");
+        downloads.appendChild(svg);
+        panel.appendChild(downloads);
+        fillDetail("home");
+      }
+
+      tabs.forEach(function(tab,index){
+        tab.addEventListener("click",function(){
+          tabs.forEach(function(item){item.setAttribute("aria-selected",String(item===tab));});
+          render(data.options[index]);
+        });
+      });
+      render(data.options[0]);
+    })();
+  </script>
+</body>
+</html>
