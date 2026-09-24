@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Cubo SEO — Dashboard Editorial 2026</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <div class="hero-grid">
+      <div>
+        <div class="brand">
+          <img src="https://cuboseo.com/wp-content/uploads/2026/09/cubo-seo-logo-transparente-web-1200.webp" alt="Cubo SEO" />
+        </div>
+        <div class="eyebrow">Dashboard editorial · 2026</div>
+        <h1>Plan editorial de Cubo SEO</h1>
+        <p class="lead">
+          Un dashboard HTML limpio, editable y usable para gestionar los próximos contenidos de Cubo SEO.
+          Incluye prioridades, brief editorial completo, enfoque SEO, tono, enlaces, fuentes externas y seguimiento
+          por artículo.
+        </p>
+      </div>
+      <aside class="hero-side">
+        <h3>Qué puedes hacer aquí</h3>
+        <ul>
+          <li>Revisar las 10 oportunidades priorizadas.</li>
+          <li>Desplegar el brief completo de cada artículo.</li>
+          <li>Filtrar por pilar, estado o búsqueda libre.</li>
+          <li>Marcar estado, avance y notas con guardado local.</li>
+          <li>Consultar temas de reserva y evidencia estratégica.</li>
+        </ul>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section kpis" id="kpis">
+    <div class="card kpi">
+      <div class="label">Artículos priorizados</div>
+      <div class="value" id="kpi-total">10</div>
+      <div class="sub">Briefs listos para producción</div>
+    </div>
+    <div class="card kpi">
+      <div class="label">Temas de reserva</div>
+      <div class="value">4</div>
+      <div class="sub">Ideas valiosas para siguiente fase</div>
+    </div>
+    <div class="card kpi">
+      <div class="label">Promedio score</div>
+      <div class="value" id="kpi-score"></div>
+      <div class="sub">Calidad / prioridad estratégica</div>
+    </div>
+    <div class="card kpi">
+      <div class="label">Pilar dominante</div>
+      <div class="value" id="kpi-pillar"></div>
+      <div class="sub">Tema más repetido en el plan</div>
+    </div>
+    <div class="card kpi">
+      <div class="label">Progreso</div>
+      <div class="value" id="kpi-progress">0%</div>
+      <div class="sub">Basado en los estados que marques aquí</div>
+    </div>
+  </section>
+
+  <section class="section card">
+    <div class="toolbar">
+      <div class="field">
+        <label for="searchInput">Buscar artículo</label>
+        <input class="input" id="searchInput" type="search" placeholder="Título, keyword, buyer persona, CTA..." />
+      </div>
+      <div class="field">
+        <label for="pillarFilter">Filtrar por pilar</label>
+        <select id="pillarFilter">
+          <option value="Todos">Todos</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="statusFilter">Filtrar por estado</label>
+        <select id="statusFilter">
+          <option value="Todos">Todos</option>
+          <option value="Pendiente">Pendiente</option>
+          <option value="En progreso">En progreso</option>
+          <option value="Hecho">Hecho</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" id="expandAll">Expandir todo</button>
+      <button class="btn" id="collapseAll">Colapsar todo</button>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="progress-label" id="progressText">0 de 10 completados</div>
+    </div>
+    <div class="meta-row">Consejo: tus estados y notas se guardan en este navegador con <strong>localStorage</strong>.</div>
+  </section>
+
+  <section class="section">
+    <div class="subsection-title">
+      <div>
+        <h2>Artículos priorizados</h2>
+        <p>Despliega cada tarjeta para ver el brief completo y llevar seguimiento.</p>
+      </div>
+    </div>
+    <div class="list" id="articleList"></div>
+  </section>
+
+  <section class="section">
+    <div class="subsection-title">
+      <div>
+        <h2>Temas de reserva</h2>
+        <p>Buenas oportunidades para la siguiente fase editorial.</p>
+      </div>
+    </div>
+    <div class="reserve-grid" id="reserveGrid"></div>
+  </section>
+
+  <section class="section">
+    <div class="subsection-title">
+      <div>
+        <h2>Evidencia estratégica</h2>
+        <p>Resumen de señales observadas para contextualizar el plan.</p>
+      </div>
+    </div>
+    <div class="evidence-grid" id="evidenceGrid"></div>
+  </section>
+
+  <div class="footer-note">
+    <strong>Nota:</strong> este dashboard está diseñado para ayudarte a gestionar la operación editorial,
+    no para sustituir el criterio estratégico. Cuando decidas arrancar un artículo, puedes tomar su brief
+    directamente desde aquí y convertirlo en desarrollo, revisión y publicación.
+  </div>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
