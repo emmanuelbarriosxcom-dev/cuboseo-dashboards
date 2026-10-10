@@ -100,7 +100,7 @@ function oauth_register_endpoint(): never {
     foreach ($redirects as $uri) ensure(is_string($uri) && mcp_redirect_allowed($uri),'La URL de retorno no está permitida.');
     $redirects=array_values(array_unique($redirects));
     if (isset($input['token_endpoint_auth_method'])) ensure($input['token_endpoint_auth_method']==='none','Solo se admiten clientes públicos con PKCE.');
-    if (isset($input['response_types'])) ensure(is_array($input['response_types']) && in_array('code',$input['response_types'],true),'Solo se admite authorization code.');
+    if (isset($input['response_types'])) ensure(is_array($input['response_types']) && in_array('code',$input['response_types'],true) && array_diff($input['response_types'],['code'])===[],'Solo se admite authorization code.');
     $grants=$input['grant_types']??['authorization_code'];
     ensure(is_array($grants) && array_is_list($grants) && in_array('authorization_code',$grants,true) && array_diff($grants,['authorization_code','refresh_token'])===[],'Tipo de concesión no compatible.');
     $grants=array_values(array_unique($grants));
