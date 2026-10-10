@@ -29,7 +29,7 @@ function mcp_tools(): array {
     $scheme=[['type'=>'oauth2','scopes'=>['clients:read']]];
     return [
         ['name'=>'search_clients','title'=>'Buscar clientes','description'=>'Use this when the user asks to find a client by name, email, phone, country, or contact. Returns a short client summary and outstanding balances by currency. Requires an exact or distinctive search; never dump the complete client list.','inputSchema'=>['type'=>'object','properties'=>['query'=>['type'=>'string','minLength'=>2,'maxLength'=>100,'description'=>'Distinctive client name, email, phone, contact, or country fragment.'],'limit'=>['type'=>'integer','minimum'=>1,'maximum'=>25,'default'=>10,'description'=>'Maximum number of matching clients.']],'required'=>['query'],'additionalProperties'=>false],'annotations'=>['readOnlyHint'=>true,'destructiveHint'=>false,'idempotentHint'=>true,'openWorldHint'=>false],'securitySchemes'=>$scheme],
-        ['name'=>'get_client_account','title'=>'Consultar cuenta de cliente','description'=>'Use this after identifying one client when the user asks for their contact details, projects, charges, payments, or balance. Requires the exact client ID returned by search_clients. Returns only that client.','inputSchema'=>['type'=>'object','properties'=>['client_id'=>['type'=>'string','minLength'=>1,'maxLength'=>100,'description'=>'Exact client ID returned by search_clients.']],'required'=>['client_id'],'additionalProperties'=>false],'annotations'=>['readOnlyHint'=>true,'destructiveHint'=>false,'idempotentHint'=>true,'openWorldHint'=>false],'securitySchemes'=>$scheme]
+        ['name'=>'get_client_account','title'=>'Consultar cuenta de cliente','description'=>'Use this after identifying one client when the user asks for contact details, project/service details, charges, payments, account history, or balance. Requires the exact client ID returned by search_clients. Returns only that client.','inputSchema'=>['type'=>'object','properties'=>['client_id'=>['type'=>'string','minLength'=>1,'maxLength'=>100,'description'=>'Exact client ID returned by search_clients.']],'required'=>['client_id'],'additionalProperties'=>false],'annotations'=>['readOnlyHint'=>true,'destructiveHint'=>false,'idempotentHint'=>true,'openWorldHint'=>false],'securitySchemes'=>$scheme]
     ];
 }
 function mcp_lower(string $value): string { return function_exists('mb_strtolower') ? mb_strtolower($value,'UTF-8') : strtolower($value); }
@@ -71,6 +71,7 @@ function mcp_search_clients(array $args, array $state): array {
 }
 function mcp_get_client_account(array $args, array $state): array {
     $clientId=is_string($args['client_id']??null)?$args['client_id']:'';
+    ensure($clientId!=='' && strlen($clientId)<=100,'Identificador de cliente no válido.');
     $client=null;
     foreach ($state['clients'] as $candidate) if (hash_equals((string)$candidate['id'],$clientId)) { $client=$candidate; break; }
     ensure($client!==null,'No se encontró ese cliente.');
@@ -89,7 +90,11 @@ function mcp_get_client_account(array $args, array $state): array {
     }
     $paymentRows=[];
     foreach ($payments as $payment) $paymentRows[]=['payment_id'=>$payment['id'],'charge_id'=>$payment['chargeId'],'amount'=>$payment['amount'],'date'=>$payment['date'],'note'=>$payment['note']??null,'rate'=>$payment['rate']??null,'rate_date'=>$payment['rateDate']??null,'mxn'=>$payment['mxn']??null];
-    return ['client'=>['client_id'=>$client['id'],'name'=>$client['name'],'status'=>$client['status'],'contact'=>$client['contact']??null,'phone'=>$client['phone']??null,'email'=>$client['email']??null,'country'=>$client['country']??null,'category'=>$client['category']??null,'channel'=>$client['channel']??null,'notes'=>$client['notes']??null],'open_balances'=>mcp_client_balances($clientId,$state,$paid),'services'=>$serviceRows,'charges'=>$chargeRows,'payments'=>$paymentRows];
+    $history=array_values(array_filter($state['history'],static fn($h)=>($h['clientId']??'')===$clientId));
+    usort($history,static fn($a,$b)=>strcmp((string)$b['date'],(string)$a['date']));
+    $historyRows=[];
+    foreach (array_slice($history,0,100) as $entry) $historyRows[]=['date'=>$entry['date'],'text'=>$entry['text']];
+    return ['client'=>['client_id'=>$client['id'],'name'=>$client['name'],'status'=>$client['status'],'contact'=>$client['contact']??null,'phone'=>$client['phone']??null,'email'=>$client['email']??null,'country'=>$client['country']??null,'category'=>$client['category']??null,'channel'=>$client['channel']??null,'notes'=>$client['notes']??null],'open_balances'=>mcp_client_balances($clientId,$state,$paid),'services'=>$serviceRows,'charges'=>$chargeRows,'payments'=>$paymentRows,'history'=>$historyRows];
 }
 function mcp_dispatch_tool(string $name, array $args, array $state): array {
     return match ($name) {
