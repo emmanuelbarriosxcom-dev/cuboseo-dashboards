@@ -1,0 +1,21 @@
+# Runtime credentials and local configuration
+/private/config.php
+/config.php
+.env
+.env.*
+!.env.example
+
+# Customer data, exports, and backups
+/data/
+/private/data/
+/backups/
+/private/backups/
+/exports/
+/private/exports/
+*.sql
+*.sql.gz
+*.dump
+*.sqlite
+*.sqlite3
+*.db
+*.zip
