@@ -28,12 +28,11 @@ Después de una revisión de seguridad, despliegue autorizado y prueba de la mig
 
 ## Validación pendiente
 
-El entorno de trabajo no tiene PHP CLI ni conexión a la base de producción, así que este código necesita:
+GitHub Actions ya ejecutó correctamente `php -l` en todos los archivos PHP del proyecto y pasó las pruebas smoke de la allowlist OAuth en [la corrida 38086740822](https://github.com/emmanuelbarriosxcom-dev/cuboseo-dashboards/actions/runs/38086740822). No hay conexión a la base de producción, así que todavía hace falta:
 
-1. `php -l` para cada archivo PHP en PHP 8.3.
-2. Pruebas de registro DCR, login/consentimiento, PKCE, audience/resource, vencimiento y rotación de refresh token en una base temporal.
-3. Prueba del handshake y llamadas MCP con MCP Inspector.
-4. Revisión de `.htaccess` y prueba en staging antes de cualquier actualización de HostGator.
-5. Confirmación de qué permisos MCP expone el plan de ChatGPT en el espacio del usuario.
+1. Pruebas de registro DCR, login/consentimiento, PKCE, audience/resource, vencimiento y rotación de refresh token en una base temporal.
+2. Prueba del handshake y llamadas MCP con MCP Inspector.
+3. Revisión de `.htaccess` y prueba en staging antes de cualquier actualización de HostGator.
+4. Confirmación de qué permisos MCP expone el plan de ChatGPT en el espacio del usuario.
 
 No se debe anunciar como conectado ni listo para producción hasta completar esas comprobaciones.
