@@ -1,4 +1,4 @@
 Options -Indexes
 RewriteEngine On
-RewriteRule ^oauth-authorization-server$ /oauth.php?action=metadata [L,QSA]
-RewriteRule ^oauth-protected-resource/mcp\.php$ /oauth.php?action=resource_metadata [L,QSA]
+RewriteRule ^oauth-authorization-server$ /oauth.php?action=metadata [L]
+RewriteRule ^oauth-protected-resource/mcp\.php$ /oauth.php?action=resource_metadata [L]
