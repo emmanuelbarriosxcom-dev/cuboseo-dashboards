@@ -1,0 +1,21 @@
+name: PHP syntax
+
+on:
+  push:
+    branches:
+      - feature/clientes-cobros-mcp
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install PHP CLI
+        run: sudo apt-get update && sudo apt-get install -y php-cli
+      - name: Lint PHP files
+        run: find clientes-cobros -type f -name '*.php' -print0 | xargs -0 -n1 php -l
+      - name: Run MCP OAuth smoke checks
+        run: php clientes-cobros/tests/mcp-auth-smoke.php
