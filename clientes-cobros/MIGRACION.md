@@ -1,6 +1,6 @@
 # Actualización y datos sin fecha
 
-Versión de código sincronizada: 12 de octubre de 2026. Esta documentación describe una actualización futura; **no se desplegó ni se migraron datos durante la sincronización**.
+Versión de código: 12 de octubre de 2026, con la corrección de PR #1 instalada y documentada en QA.md. El procedimiento siguiente aplica a futuras actualizaciones. La instalación de la corrección no requirió migración SQL ni modificación de datos.
 
 ## Instalación existente
 
@@ -39,6 +39,8 @@ Los abonos de `opening.payments` llevan `date:null`. No se copian a los pagos me
 - Ventana: `collectionWindow:{start,end}`, `due:null`. Es un intervalo de cobro posterior al periodo del servicio, no una fecha límite confirmada.
 - Ads con día habitual pero mes no confirmado: `collectionPending:true`, `collectionDay`, `due:null`, sin ventana.
 - Ads con vencimiento confirmado: `due:'AAAA-MM-DD'`, `collectionDay` coincidente con el día de esa fecha, sin `collectionPending:true` ni ventana. La fecha debe ser posterior al periodo del servicio. Modalidad/acuerdo y cobro existente deben revisarse por separado.
+
+Las importaciones ahora rechazan explícitamente una ventana y una fecha límite no nula en el mismo cobro, incluso sin pagador. `due:null` o ausente sigue permitido para ventanas; los vencimientos exactos válidos de Ads siguen permitidos.
 
 Editar vencimiento conserva ID e importe del cobro. No registrar pagos recibidos, pagos a colaboradores o meses adicionales por confirmar una fecha. No introducir nombres, tarifas ni registros reales en fixtures públicas.
 

@@ -4,13 +4,14 @@ Herramienta interna PHP/MySQL de clientes, servicios, cobros y pagos. La aplicac
 
 ## Versión sincronizada
 
-Código descargado de la instalación activa el **12 de octubre de 2026**, sin modificar producción. Incluye:
+Código descargado de la instalación activa el **12 de octubre de 2026**, con la corrección de importación de [PR #1](https://github.com/emmanuelbarriosxcom-dev/cuboseo-dashboards/pull/1) posteriormente validada con PHP real e instalada. Incluye:
 
 - Ficha histórica sin fechas ni cobros, sin reconstruir movimientos históricos.
 - Saldos iniciales, contratos con recepción parcial y abonos históricos sin fecha; importes desconocidos conservados como desconocidos.
 - Confirmación mensual que separa mes cubierto, fecha de recepción y conversión a MXN. No aplica una conversión supuesta a los pagos confirmados.
 - Cobros por proyecto/servicio agrupados por pagador, con ventana de cobro o vencimiento Ads confirmado, sin un segundo cobro en la ficha del intermediario.
 - Pausa de generación automática, protección contra duplicados y conflictos de revisión del servidor.
+- Rechazo de importaciones con ventana y fecha límite simultáneas, en JavaScript y PHP.
 - Controles táctiles de al menos 44 × 44 px, Tarjetas iniciales en teléfono cuando no hay preferencia guardada y footer «Datos guardados en el servidor».
 
 Los registros reales, configuración, credenciales, exportaciones y respaldos quedan fuera de este repositorio público. La función demo contiene exclusivamente datos ficticios y el servidor rechaza importaciones de demostración. El HTML fuente conserva `<!--SERVER_BOOT-->`; no se ha publicado el HTML servido a una sesión con registros insertados.
