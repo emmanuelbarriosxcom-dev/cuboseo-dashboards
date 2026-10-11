@@ -76,6 +76,7 @@ function validate_state(mixed $s): array {
     }
     foreach($charges as $c) {
         $svc=$services[$c['serviceId']??'']??null;
+        ensure(!array_key_exists('collectionWindow',$c) || !isset($c['due']), 'No combines ventana y fecha límite.');
         ensure($svc!==null && isset($clients[$c['clientId']??'']) && $svc['clientId']===$c['clientId'] && valid_amount($c['amount']??null) && ($c['currency']??'')===$svc['currency'] && valid_date($c['start']??null) && valid_date($c['end']??null) && $c['end']>=$c['start'] && valid_month($c['period']??null) && (!isset($c['due']) || valid_date($c['due'])) && is_string($c['title']??null) && strlen($c['title'])<=16000, 'Cobro no válido.');
         if(isset($c['collectionDay'])) ensure(is_int($c['collectionDay']) && $c['collectionDay']>=1 && $c['collectionDay']<=31, 'Día habitual no válido.');
         if(isset($c['payerId'])) {

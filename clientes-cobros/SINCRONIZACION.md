@@ -1,5 +1,7 @@
 # Sincronización del código instalado — 12 de octubre de 2026
 
+Corrección posterior propuesta: el dashboard y el validador PHP rechazan importaciones con ventana y vencimiento simultáneos. Esta diferencia de código respecto al commit sincronizado `4a082ba` no ha sido instalada en HostGator. El manifiesto identifica los archivos de esta versión de GitHub; no certifica coincidencia actual con producción. Ver la revisión adicional en QA.md.
+
 ## Fuente
 
 Descarga individual desde el Administrador de archivos de cPanel de la instalación activa de `clientes.cuboseo.com`. Se revisaron las carpetas hermanas `public`, `private` y `scripts`; no se usó un ZIP antiguo como versión vigente. La comparación con el commit anterior confirma que los únicos archivos de código modificados son `private/dashboard.html` y `private/validate.php`.

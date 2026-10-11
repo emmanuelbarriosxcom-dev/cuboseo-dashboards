@@ -5,6 +5,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 const vm=require('node:vm');
+const {spawnSync}=require('node:child_process');
 const html=fs.readFileSync(path.join(__dirname,'../private/dashboard.html'),'utf8');
 const js=html.match(/<script>([\s\S]*?)<\/script>/)[1];
 new vm.Script(js);
@@ -16,6 +17,29 @@ function fresh(){const s=E.emptyState({MXN:1,USD:1,EUR:1},'2026-10-12');s.settin
 function opening(kind,total,received,currency='MXN'){return {kind,total,received,currency,date:null,due:null,payments:[],note:'Fixture sintética'};}
 function monthly(s,options={}){return E.confirmMonthly(s,'client_test',{amount:75,currency:'USD',name:'Servicio ficticio',type:'SEO',mode:'advance',period:'2026-10',status:'paid',...options});}
 function grouped(){const s=fresh();s.clients.push({id:'payer_test',name:'Pagador ficticio',status:'active'});s.services.push({id:'service_test',clientId:'client_test',name:'Ads de prueba',type:'Ads',amount:900,currency:'MXN',kind:'recurring',start:'2026-10-01',frequency:'monthly',mode:'arrears',cycle:'calendar',dueDay:15,windows:[{start:'2026-10-01',end:null}]});s.charges.push({id:'charge_test',clientId:'client_test',serviceId:'service_test',amount:900,currency:'MXN',period:'2026-10',start:'2026-10-01',end:'2026-10-31',due:'2026-11-15',title:'Ads de prueba',payerId:'payer_test',paymentGroup:'Ads',collectionDay:15});return s;}
+function windowFixture(group){const s=grouped(),q=s.charges[0];q.due=null;delete q.collectionDay;q.collectionWindow={start:'2026-11-01',end:'2026-11-05'};if(group===null){delete q.payerId;delete q.paymentGroup;}else q.paymentGroup=group;return s;}
+test('importación rechaza ventana y vencimiento juntos, con o sin pagador',()=>{
+ for(const group of ['SEO','Ads',null]){
+  const s=windowFixture(group);E.validate(s);
+  const missingDue=E.clone(s);delete missingDue.charges[0].due;E.validate(missingDue);
+  for(const due of ['2026-11-01','2026-11-15']){const b=E.clone(s);b.charges[0].due=due;assert.throws(()=>E.validate(JSON.parse(JSON.stringify(b))),/ventana|límite/i);}
+ }
+ const exact=grouped();E.validate(exact);assert.equal(exact.charges[0].due,'2026-11-15');
+});
+const phpProbe=spawnSync('php',['-v'],{encoding:'utf8'});
+test('validador PHP rechaza los mismos conflictos de importación',{
+ skip:phpProbe.error?.code==='ENOENT'?'PHP CLI no disponible':false
+},()=>{
+ assert.ifError(phpProbe.error);assert.equal(phpProbe.status,0,phpProbe.stderr);
+ const script='require $argv[1]; try { validate_state(json_decode(stream_get_contents(STDIN),true,512,JSON_THROW_ON_ERROR)); } catch (Throwable $e) { fwrite(STDERR,$e->getMessage()); exit(1); }';
+ const validate=s=>spawnSync('php',['-r',script,path.join(__dirname,'../private/validate.php')],{input:JSON.stringify(s),encoding:'utf8'});
+ for(const group of ['SEO','Ads',null]){
+  const s=windowFixture(group);const good=validate(s);assert.ifError(good.error);assert.equal(good.status,0,good.stderr);
+  const missingDue=E.clone(s);delete missingDue.charges[0].due;const missing=validate(missingDue);assert.ifError(missing.error);assert.equal(missing.status,0,missing.stderr);
+  for(const due of ['2026-11-01','2026-11-15']){const b=E.clone(s);b.charges[0].due=due;const bad=validate(b);assert.ifError(bad.error);assert.equal(bad.status,1,bad.stderr);assert.match(bad.stderr,/ventana|límite/i);}
+ }
+ const exact=validate(grouped());assert.ifError(exact.error);assert.equal(exact.status,0,exact.stderr);
+});
 test('saldo inicial y abonos sin fecha no crean movimientos mensuales',()=>{const s=fresh();s.clients[0].opening=opening('contract',800,300);const o=s.clients[0].opening;E.addOpeningPayment(o,125,'Abono ficticio');assert.equal(E.openingPaid(o),425);assert.equal(E.openingBalance(o),375);assert.equal(o.payments[0].date,null);assert.equal(o.due,null);E.validate(s);assert.equal(s.payments.length,0);assert.equal(s.charges.length,0);assert.throws(()=>E.addOpeningPayment(o,400));});
 test('deuda y valores desconocidos se conservan sin fechas inventadas',()=>{for(const o of [opening('debt',250,0),opening('prepaid_unknown',null,null),opening('unresolved',null,null,null)]){const s=fresh();s.clients[0].opening=o;E.validate(s);assert.equal(o.date,null);assert.equal(o.due,null);assert.equal(s.charges.length,0);}const o=opening('prepaid_unknown',10,null);assert.throws(()=>E.validateOpening(o));});
 test('mensualidad pagada sin fecha ni FX conserva moneda y liquida un solo cobro',()=>{const s=fresh(),q=monthly(s);E.validate(s);const p=s.payments[0];assert.equal(p.date,null);assert.equal(p.dateStatus,'unknown');assert.equal(p.conversionStatus,'unknown');for(const k of ['rate','rateDate','mxn'])assert.equal(p[k],null);assert.equal(E.payMXN(p),null);assert.equal(E.status(s,q),'paid');assert.equal(q.period,'2026-10');assert.equal(s.services[0].firstRegisteredPeriod,'2026-10');assert.equal(q.due,null);assert.throws(()=>monthly(s));assert.equal(s.charges.length,1);assert.equal(s.payments.length,1);const copy=JSON.parse(JSON.stringify(s));E.validate(copy);assert.equal(copy.payments[0].date,null);});
