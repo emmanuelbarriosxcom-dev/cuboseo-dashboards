@@ -2,6 +2,15 @@
 
 Esta ronda valida el código descargado, no una instalación nueva ni una modificación de producción.
 
+## Revisión adicional: ventana y vencimiento incompatibles
+
+La regresión añadida reproduce el fallo del commit `4a082ba`: un JSON con ventana de cobro y fecha límite simultáneas era aceptado. Ahora ambos validadores rechazan esa combinación, también en cobros sin pagador. Se conservan ventanas con `due:null` o sin el campo, y vencimientos Ads exactos sin ventana.
+
+- `node --test tests/financial-regressions.cjs`: 9 pruebas JavaScript aprobadas; 1 prueba de validación PHP omitida porque no existe PHP CLI local. Esta última ejercita directamente `validate_state` y se ejecutará automáticamente con el mismo comando cuando PHP esté disponible; no necesita base de datos.
+- Sintaxis JavaScript completa comprobada con `node --check`.
+- No se ejecutaron `php -l`, parser PHP ni integración PHP/MySQL en esta revisión adicional. Los 12 archivos analizados en la sincronización original corresponden al código anterior a esta corrección.
+- Corrección propuesta en GitHub, sin despliegue, acceso a datos o cambios en HostGator. Actualizado el manifiesto para los dos archivos de código modificados.
+
 ## Ejecutado
 
 - 16 archivos de código/recursos descargados individualmente de cPanel y comparados con la copia del repositorio. Solo `dashboard.html` y `validate.php` presentan cambios funcionales. Se eliminaron espacios finales del HTML al preparar el commit, sin alterar instrucciones.
@@ -20,6 +29,6 @@ Esta ronda valida el código descargado, no una instalación nueva ni una modifi
 - No se accedió a la base, configuración privada, exportaciones o respaldos. Tampoco se hicieron pruebas de navegador que guarden en producción.
 - No se modificaron archivos de HostGator, cron, datos, web principal, GitHub Pages ni ajustes del repositorio.
 - Safari/iOS y dispositivos físicos no se revisaron en esta ronda de código.
-- El código vigente permite un objeto importado con ventana y vencimiento simultáneos en algunas rutas de validación; el formulario de edición lo impide. No se cambió ese comportamiento durante la sincronización. Para futuras importaciones, respetar la exclusión mutua documentada y validar en entorno aislado.
+- El commit sincronizado `4a082ba` permitía un objeto importado con ventana y vencimiento simultáneos en algunas rutas, aunque el formulario lo impedía. La revisión adicional documentada arriba corrige los validadores; esta corrección no se presenta como desplegada en producción.
 
 Los resultados históricos del 10 de octubre no se presentan como pruebas nuevas. Antes de cualquier despliegue futuro, seguir MIGRACION.md y completar las pruebas PHP/MySQL disponibles en el entorno de destino.
