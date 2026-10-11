@@ -1,38 +1,25 @@
-# QA de la versión de servidor 1.0.0
+# QA de sincronización — 12 de octubre de 2026
 
-Fecha: 10 de octubre de 2026. **Pruebas locales; instalación en HostGator pendiente.**
+Esta ronda valida el código descargado, no una instalación nueva ni una modificación de producción.
 
-## Resultado
+## Ejecutado
 
-- 47 comprobaciones de integración aprobadas con aplicación PHP real y base de datos real.
-- 13 comprobaciones del motor financiero aprobado, conservado en esta versión.
-- Los 12 archivos PHP pasan la comprobación de sintaxis.
-- JavaScript generado validado con parser ECMAScript; no se usa localStorage para clientes ni pagos.
+- 16 archivos de código/recursos descargados individualmente de cPanel y comparados con la copia del repositorio. Solo `dashboard.html` y `validate.php` presentan cambios funcionales. Se eliminaron espacios finales del HTML al preparar el commit, sin alterar instrucciones.
+- JavaScript completo del dashboard: `node --check` aprobado.
+- `node --test tests/financial-regressions.cjs`: **8/8 pruebas aprobadas**, solo fixtures sintéticas. Verifican saldos/abonos sin fecha, importes desconocidos, pagos mensuales sin fecha/FX, fecha de recepción distinta al mes cubierto, no creación de pagos futuros, bloqueo de duplicados/sobrepagos, Ads con vencimiento exacto y ventana SEO distinta de fecha límite. Confirman que generar con facturación pausada no añade cobros ni cambia importes.
+- Sintaxis de los **12 archivos PHP** aprobada con `php-parser` configurado para PHP 8.3. No se instaló PHP ni se ejecutaron scripts del hosting.
+- Esquema: seis `CREATE TABLE IF NOT EXISTS`, sin registros, INSERT, USE o CREATE DATABASE. Idéntico al esquema anterior.
+- Revisión de diff y búsquedas de credenciales, claves privadas, tokens, cuentas/rutas de producción y nombres de clientes reales: no detectados en los archivos publicados. No hay correos embebidos. El ejemplo de configuración contiene únicamente marcadores.
+- Código responsive aprobado conservado: 44 × 44 px, Tarjetas iniciales en teléfono respetando preferencia y footer del servidor.
+- Manifiesto SHA-256 actualizado para los 16 archivos de código/recursos publicados. `.gitignore` conservado y ampliado para logs, cachés y copias previas.
 
-Entorno: PHP 8.3.6 con PDO MySQL y MariaDB 10.11.14. El SQL utiliza tablas InnoDB, utf8mb4 y funciones compatibles con MySQL/Percona 5.7; **Percona 5.7 de HostGator no se ejecutó en esta prueba local**.
+## No ejecutado / límites
 
-## Integración verificada
+- **`php -l` no disponible**: no hay intérprete PHP local. El parser comprueba sintaxis, no ejecución, extensiones PDO ni comportamiento del validador PHP frente a la base.
+- No se ejecutó una prueba de integración PHP/MySQL, alta, envío de pagos o migración. Las pruebas de regresión ejercitan el motor JavaScript y serialización JSON; no sustituyen una prueba de persistencia/revisión de servidor.
+- No se accedió a la base, configuración privada, exportaciones o respaldos. Tampoco se hicieron pruebas de navegador que guarden en producción.
+- No se modificaron archivos de HostGator, cron, datos, web principal, GitHub Pages ni ajustes del repositorio.
+- Safari/iOS y dispositivos físicos no se revisaron en esta ronda de código.
+- El código vigente permite un objeto importado con ventana y vencimiento simultáneos en algunas rutas de validación; el formulario de edición lo impide. No se cambió ese comportamiento durante la sincronización. Para futuras importaciones, respetar la exclusión mutua documentada y validar en entorno aislado.
 
-Acceso obligatorio al dashboard y datos; creación inicial única; sesión privada; hash de contraseña; protección de solicitudes con CSRF y origen; bloqueo de intentos fallidos; cambio de contraseña con invalidación de otras sesiones; cierre mediante POST y redirección HTTP a HTTPS en configuración de producción.
-
-Guardado conjunto de cliente, servicio y cobro; persistencia tras recargar; pagos parciales, corrección y deshacer; rechazo de sobrepagos, relaciones rotas y simulación; conservación del precio y la moneda del acuerdo; proyectos con anticipo pagado y saldo sin vencimiento; pausa y reactivación sin duplicar el periodo.
-
-Rechazo de una versión desactualizada; reintento de una operación con la misma referencia; rechazo del uso de esa referencia con otro contenido; pérdida de respuesta después de que el servidor confirma el cambio, sin duplicar la revisión; guardado sin conexión retenido para reintento y confirmado al reconectar.
-
-Versiones anteriores y auditoría creadas en cada cambio confirmado; copia JSON diaria válida; extracción de versión para recuperar; retención de 31 archivos diarios; configuración, esquema, código privado y scripts fuera de la raíz web.
-
-## Navegador y revisión visual
-
-Chromium con ventanas y controles táctiles emulados: teléfono 390×844, iPad 834×1194 y escritorio 1440×1000. Se probaron cambios de orientación y altura reducida de 450 px.
-
-Alta de cliente, proyecto puntual, pausa y reactivación, pago, corrección, deshacer, ajustes y acceso privado. Sin errores JavaScript no controlados ni desbordamiento horizontal de página. Las tablas conservan su desplazamiento interno.
-
-Se inspeccionaron las capturas de login, ficha de cliente y formulario de alta. El acceso nuevo utiliza el logo vectorial y tipografía del dashboard aprobado.
-
-Esto no equivale a una prueba física en Safari/iOS o iPadOS; la comprobación real en esos dispositivos forma parte de la entrega instalada.
-
-## Verificación pendiente en HostGator
-
-DNS y AutoSSL del subdominio; raíz pública separada y permisos; PDO en el PHP web y CLI del servidor; funcionamiento sobre Percona 5.7.44-48; límites efectivos de solicitudes y base; respaldo diario activado y ejecutado; recuperación; comportamiento desde dispositivos reales; prueba del agente autorizado mediante el navegador.
-
-No se han creado subdominios, bases o usuarios en HostGator, contratado servicios, cargado datos reales ni creado un repositorio remoto.
+Los resultados históricos del 10 de octubre no se presentan como pruebas nuevas. Antes de cualquier despliegue futuro, seguir MIGRACION.md y completar las pruebas PHP/MySQL disponibles en el entorno de destino.

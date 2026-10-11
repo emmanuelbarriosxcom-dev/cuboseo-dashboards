@@ -19,3 +19,21 @@
 *.sqlite3
 *.db
 *.zip
+
+# Private runtime artifacts and previous file copies
+*.log
+/logs/
+/private/logs/
+/cache/
+/private/cache/
+*.before.*
+*.before-*
+*.bak
+*.tar
+*.tar.gz
+*.tgz
+*.pem
+*.key
+*.p12
+*.pfx
+.DS_Store
