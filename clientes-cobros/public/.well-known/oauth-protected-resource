@@ -1,0 +1,1 @@
+{"resource":"https://clientes.cuboseo.com/mcp.php","authorization_servers":["https://clientes.cuboseo.com"],"scopes_supported":["cubo:read","cubo:write"],"bearer_methods_supported":["header"]}

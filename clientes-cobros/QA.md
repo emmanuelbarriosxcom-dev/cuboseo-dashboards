@@ -36,3 +36,18 @@ Sin overflow horizontal de página; navegación operativa, estado «Datos guarda
 No se ejecutó una integración de escritura PHP/MySQL ni se provocó un guardado ficticio en producción. La prueba PHP real valida payloads, no necesita PDO; el CLI aislado mínimo no sustituye la configuración PHP del hosting. No se probaron dispositivos físicos, Safari o teclado virtual iOS. No se modificó GitHub Pages.
 
 Las omisiones de PHP documentadas en la revisión inicial de la PR y en la sincronización anterior quedan superadas por los resultados de esta instalación, no se convierten retroactivamente en pruebas ejecutadas entonces.
+
+
+## Operación futura y MCP — 12 octubre 2026
+
+- 17 pruebas Node pasan, sin skips: 10 regresiones financieras existentes y 7 grupos nuevos.
+- PHP 8.3.35 real con PDO SQLite para almacenamiento aislado; ninguna prueba abre configuración ni base real.
+- Paridad PHP/JS: inicio futuro, anticipo que cubre calendario siguiente, días desconocidos sin vencimiento, ventanas y días de mes vencido, exclusiones y repetición sin cobros duplicados.
+- Backend: lectura con scopes, propuestas sin escritura, rechazo antes de aprobación, pago agrupado parcial, reintento idempotente, conflicto de revisión, rechazo de sobrepago/cliente duplicado, PKCE y uso único de código, revocación al cambiar contraseña.
+- La autenticación y escritura desde ChatGPT son una comprobación aparte; no se presuponen aprobadas por estos tests.
+
+- En HostGator: consulta y escritura ficticia aprobada en tablas independientes con PDO MySQL; repetir la operación devuelve replay sin duplicación.
+- Descubrimiento OAuth HTTP 200 y acceso MCP sin token HTTP 401 con desafío OAuth, verificados desde el navegador autorizado. Un cliente HTTP externo de este equipo recibe 406; no se alteró WAF y no se atribuye ese resultado automáticamente a ChatGPT.
+- Datos actuales verificados tras recargar: se conservan IDs, cobros, pagos, notas y saldos originales; solo se añaden alias y reglas futuras aprobadas.
+- UI: móvil de 390 px, iPad 834 px y escritorio 1366 px emulados; calendario sin overflow, botones accesibles y grupos de pagador sin cargos adicionales. Safari/iOS físicos no utilizados.
+- Pendiente: consentimiento OAuth y consulta/escritura desde ChatGPT real. La comprobación interna no sustituye ese cierre.

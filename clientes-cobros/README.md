@@ -10,7 +10,9 @@ Código descargado de la instalación activa el **12 de octubre de 2026**, con l
 - Saldos iniciales, contratos con recepción parcial y abonos históricos sin fecha; importes desconocidos conservados como desconocidos.
 - Confirmación mensual que separa mes cubierto, fecha de recepción y conversión a MXN. No aplica una conversión supuesta a los pagos confirmados.
 - Cobros por proyecto/servicio agrupados por pagador, con ventana de cobro o vencimiento Ads confirmado, sin un segundo cobro en la ficha del intermediario.
-- Pausa de generación automática, protección contra duplicados y conflictos de revisión del servidor.
+- Calendario futuro explícito por servicio, generación al abrir, pausa y protección contra duplicados/conflictos.
+- Alias confirmados e histórico separado de ingresos fechados.
+- MCP privado OAuth/PKCE, scopes y aprobación por operación, con entorno ficticio aislado.
 - Rechazo de importaciones con ventana y fecha límite simultáneas, en JavaScript y PHP.
 - Controles táctiles de al menos 44 × 44 px, Tarjetas iniciales en teléfono cuando no hay preferencia guardada y footer «Datos guardados en el servidor».
 
@@ -24,6 +26,7 @@ Los registros reales, configuración, credenciales, exportaciones y respaldos qu
 - `tests/`: pruebas del motor con fixtures sintéticas, sin conexión ni datos de producción.
 - [INSTALACION.md](INSTALACION.md): instalación nueva.
 - [MIGRACION.md](MIGRACION.md): actualización y semántica de datos sin fecha.
+- [OPERACION.md](OPERACION.md): calendario futuro, histórico y conexión privada.
 - [QA.md](QA.md): comprobaciones de esta sincronización y límites.
 - [SINCRONIZACION.md](SINCRONIZACION.md): procedencia y exclusiones.
 
@@ -32,9 +35,9 @@ El esquema SQL contiene solo estructura vacía; no incluye registros. `config.ex
 ## Comprobaciones locales
 
 ```sh
-node --test tests/financial-regressions.cjs
-# Si PHP está disponible:
+node --test tests/*.cjs
+# PHP CLI con PDO SQLite es obligatorio para la nueva prueba backend:
 find private public scripts -name '*.php' -exec php -l {} \;
 ```
 
-No hace falta una API de OpenAI de pago para operar los formularios con una sesión de navegador autorizada. La sincronización de este directorio no despliega código ni activa generación de cobros.
+No hace falta una API de OpenAI de pago para operar los formularios con una sesión de navegador autorizada. GitHub no despliega ni genera cobros; la instalación y activación se verifican por separado en HostGator.

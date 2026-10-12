@@ -1,0 +1,3 @@
+<FilesMatch "^oauth-(authorization-server|protected-resource)$">
+ForceType application/json
+</FilesMatch>

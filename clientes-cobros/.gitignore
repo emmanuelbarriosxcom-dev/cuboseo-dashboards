@@ -37,3 +37,6 @@
 *.p12
 *.pfx
 .DS_Store
+
+# OAuth tokens, proposals and private approval state
+/private/mcp-runtime/

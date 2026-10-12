@@ -29,3 +29,8 @@ Esta sincronización es únicamente GitHub: **no despliega a HostGator ni cambia
 El 12 de octubre se revisó e instaló `e641892916039c7e1b8693c26cba777b1f42b361`, tras nueve regresiones JavaScript y una PHP real aprobadas, sin omitir ninguna; `php -l` pasó en los 12 archivos PHP. Esta etapa sí actualizó los dos validadores de producción, con respaldo privado antes/después y API temporalmente retirada para evitar nuevas escrituras. La sincronización inicial descrita arriba fue una etapa anterior de solo lectura.
 
 Ambos archivos instalados coincidieron por SHA-256 con la PR. La API se restituyó sin cambios de contenido; la exportación completa de negocio posterior al QA fue idéntica a la anterior. No se publicaron datos, capturas financieras, configuración, respaldos o credenciales. La PR se fusionó solo después de verificar instalación, datos y responsive. Ver QA.md para resultados y límites reales.
+
+
+## Actualización operativa — 12 octubre 2026
+
+La versión activa previa se comparó con main; dashboard, validador, API y bootstrap coincidían. Se conserva backup privado previo y posterior de archivos y estado. Se añaden calendario explícito, módulos compartidos de guardado/operaciones y MCP OAuth con sandbox. No se incluyen planes con IDs reales, clientes, pagos, config.php, tokens, propuestas, exports, logs o backups. GitHub Pages no se usa. Ver OPERACION.md y QA.md para ejecución al abrir y límites de la prueba real de ChatGPT.

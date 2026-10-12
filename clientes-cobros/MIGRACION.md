@@ -49,3 +49,8 @@ Editar vencimiento conserva ID e importe del cobro. No registrar pagos recibidos
 Antes de aceptar escrituras con campos nuevos, conservar la pareja de archivos anterior para rollback de código. Una vez que existan datos nuevos, **no volver a un validador antiguo que los rechaza**. Probar la compatibilidad de la copia anterior con el payload vigente; si falla, mantener una versión compatible y evaluar recuperación en una copia aislada. Restaurar un respaldo de datos puede perder cambios posteriores y requiere una decisión explícita, no es un rollback automático.
 
 Nunca reabrir el alta ni borrar tablas para resolver una actualización. Conservar respaldos diarios, configuración y web principal.
+
+
+## Calendario y MCP privado
+
+Ver [OPERACION.md](OPERACION.md). Instalar los módulos nuevos junto al dashboard, validador y API de la misma versión. Conservar `config.php`, `.htaccess` principal, cuentas, alta deshabilitada y cron. No copiar planes con IDs de clientes, exportaciones ni `mcp-runtime/` a Git. Los archivos de `public/.well-known/` son metadatos públicos sin claves; adaptar su origen si se instala en otro dominio. La conexión OAuth requiere autorización del propietario y prueba real desde ChatGPT antes de considerarse terminada.

@@ -31,6 +31,7 @@ function validate_state(mixed $s): array {
     foreach(['clients','services','charges','payments','history'] as $k) ensure(is_array($s[$k]??null) && array_is_list($s[$k]) && count($s[$k])<=20000,'Colección no válida.');
     $clients=indexed($s['clients']); $services=indexed($s['services']); $charges=indexed($s['charges']); indexed($s['payments']); indexed($s['history']);
     foreach($clients as $c) ensure(is_string($c['name']??null) && trim($c['name'])!=='' && strlen($c['name'])<=400 && oneof($c['status']??null,['active','paused','inactive']) && text_fields($c,['contact','phone','email','country','category','channel','referral','dni','notes']), 'Cliente no válido.');
+    foreach($clients as $c) if(isset($c['aliases'])) {ensure(is_array($c['aliases'])&&array_is_list($c['aliases'])&&count($c['aliases'])<=30,'Alias no válidos.');foreach($c['aliases'] as $a)ensure(is_string($a)&&trim($a)!==''&&strlen($a)<=200,'Alias no válido.');}
     foreach($clients as $c) if(array_key_exists('opening',$c)) {
         $o=$c['opening'];
         ensure(is_array($o) && oneof($o['kind']??null,['debt','contract','prepaid_unknown','unresolved']) && array_key_exists('date',$o) && $o['date']===null && array_key_exists('due',$o) && $o['due']===null && is_string($o['note']??null) && strlen($o['note'])<=64000 && is_array($o['payments']??null) && array_is_list($o['payments']) && count($o['payments'])<=20000, 'Saldo inicial no válido.');
@@ -48,6 +49,14 @@ function validate_state(mixed $s): array {
         }
     }
     foreach($services as $v) {
+        if(isset($v['automation'])){
+            $a=$v['automation'];$r=$a['collection']??null;
+            ensure(is_array($a)&&is_bool($a['enabled']??null)&&valid_month($a['fromPeriod']??null)&&$a['fromPeriod']>='2026-11'&&$v['kind']==='recurring'&&($v['frequency']??null)==='monthly'&&($v['cycle']??null)==='calendar'&&is_array($r)&&oneof($r['kind']??null,['day','window','unknown','previous_day']),'Automatización mensual no válida.');
+            if(oneof($r['kind'],['day','previous_day']))ensure(valid_day($r['day']??null),'Día automático no válido.');
+            if($r['kind']==='window')ensure(valid_day($r['startDay']??null)&&valid_day($r['endDay']??null)&&$r['startDay']<=$r['endDay']&&$v['mode']==='arrears','Ventana automática no válida.');
+            if($r['kind']==='previous_day')ensure($v['mode']==='advance','Anticipo automático no válido.');
+            if(isset($a['payerId']))ensure(isset($clients[$a['payerId']])&&$a['payerId']!==$v['clientId']&&oneof($a['paymentGroup']??null,['SEO','Ads']),'Pagador automático no válido.');
+        }
         if(isset($v['firstRegisteredPeriod'])) ensure(valid_month($v['firstRegisteredPeriod']), 'Periodo registrado no válido.');
         if(isset($v['nextExpectedPayment'])) { $n=$v['nextExpectedPayment']; ensure(is_array($n)&&valid_date($n['date']??null)&&valid_month($n['period']??null)&&valid_amount($n['amount']??null)&&($n['currency']??null)===($v['currency']??null)&&($n['received']??null)===false,'Referencia de próximo pago no válida.'); }
         if(isset($v['schedulePending'])) ensure(is_bool($v['schedulePending']), 'Estado de calendario no válido.');

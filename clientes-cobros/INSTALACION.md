@@ -23,3 +23,8 @@ Para actualizar una instalación existente, seguir [MIGRACION.md](MIGRACION.md).
 La sincronización incluye código instalado y documentación, no credenciales, datos ni reglas `.htaccess` privadas del hosting. Conservar las reglas actuales en una actualización; en un hosting nuevo comprobar redirección HTTPS, denegación de archivos privados y ausencia de listado de directorios. No copiar la aplicación completa dentro de una raíz web.
 
 HostGator aloja la aplicación. GitHub es la fuente de mantenimiento; no configurar GitHub Pages para ejecutarla. No se requiere contratar una API de OpenAI.
+
+
+## Calendario y MCP privado
+
+Ver [OPERACION.md](OPERACION.md). Instalar los módulos nuevos junto al dashboard, validador y API de la misma versión. Conservar `config.php`, `.htaccess` principal, cuentas, alta deshabilitada y cron. No copiar planes con IDs de clientes, exportaciones ni `mcp-runtime/` a Git. Los archivos de `public/.well-known/` son metadatos públicos sin claves; adaptar su origen si se instala en otro dominio. La conexión OAuth requiere autorización del propietario y prueba real desde ChatGPT antes de considerarse terminada.
