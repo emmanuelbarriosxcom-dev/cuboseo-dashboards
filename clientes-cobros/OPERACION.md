@@ -89,3 +89,22 @@ OAuth añade ahora únicamente el redirect URI registrado y validado a su
 form-action. Las demás páginas mantienen la política original. Prueba HTTP
 PHP aislada verifica esa cabecera además del flujo login/consentimiento;
 18 pruebas completas pasan. Confirmación desde ChatGPT pendiente del propietario.
+
+### Validación real desde ChatGPT completada — 2026-10-12
+
+Tras el consentimiento del propietario, ChatGPT muestra la cuenta conectada
+mediante OAuth a `mcp-test.php`. Desde el chat se ejecutaron search_clients y
+get_client sobre la ficha ficticia. Se preparó una actualización exclusiva
+de sus notas, se revisó/aprobó en la web y se ejecutó commit_operation dos
+veces con la misma propuesta: primer resultado saved=true, revision=2,
+replayed=false; segundo saved=true, revision=2, replayed=true. get_client
+confirmó la nota, nombre/estado intactos y ningún pago. La consulta directa
+PHP/MySQL también confirma esa nota: 2 fichas, 1 servicio, 1 cobro, 0 pagos.
+
+El chat mostró un aviso transitorio de timeout, pero terminó mostrando los
+tres resultados reales. No se preparó una segunda propuesta ni se duplicó
+la escritura. Exportación privada de producción comparada con la anterior:
+igualdad completa, 84 fichas, 16 cobros, 3 pagos. Ninguna conexión de producción.
+Las referencias de propuesta, tokens, estados OAuth, datos y capturas quedan
+fuera del repositorio público. Los respaldos diarios y configuración no se
+modificaron. La autorización sigue siendo de una hora, sin refresh token.
