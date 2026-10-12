@@ -1,5 +1,30 @@
 <?php
 declare(strict_types=1);
+// OAuth has its own cookie: a cross-site top-level entry must not replace
+// the application's Strict session. CSRF and Origin checks still protect POST.
+function oauth_session_boot(): void {
+    if (session_status() === PHP_SESSION_ACTIVE) return;
+    $c=config();session_name('CUBOOAUTHSESSID');
+    ini_set('session.use_strict_mode','1');ini_set('session.use_only_cookies','1');
+    ini_set('session.gc_maxlifetime','28800');
+    session_set_cookie_params(['lifetime'=>0,'path'=>'/oauth.php','secure'=>!($c['allow_http_local']??false),'httponly'=>true,'samesite'=>'Lax']);
+    session_start();
+    if(isset($_SESSION['last_activity'])&&time()-$_SESSION['last_activity']>28800){$_SESSION=[];session_regenerate_id(true);}
+    $_SESSION['last_activity']=time();$_SESSION['csrf']??=bin2hex(random_bytes(32));
+}
+function oauth_pending_begin(array $request): void {
+    $_SESSION['oauth_pending']=oauth_authorization($request);
+    $_SESSION['oauth_flow']=bin2hex(random_bytes(24));
+    $_SESSION['oauth_started']=time();
+}
+function oauth_pending_get(?string $flow=null): array {
+    $a=$_SESSION['oauth_pending']??null;
+    ensure(is_array($a),'Falta la sesión de autorización. Inicia una conexión nueva desde ChatGPT.');
+    ensure(isset($_SESSION['oauth_started'])&&time()-$_SESSION['oauth_started']<=1200,'La solicitud de autorización caducó. Inicia una conexión nueva desde ChatGPT.');
+    if($flow!==null)ensure(isset($_SESSION['oauth_flow'])&&hash_equals($_SESSION['oauth_flow'],$flow),'La solicitud cambió en otra pestaña. Inicia una conexión nueva desde ChatGPT.');
+    return oauth_authorization($a);
+}
+function oauth_pending_clear(): void {unset($_SESSION['oauth_pending'],$_SESSION['oauth_flow'],$_SESSION['oauth_started']);}
 function oauth_metadata(): array {$o=config()['app_origin'];return ['issuer'=>$o,'authorization_endpoint'=>$o.'/oauth.php?action=authorize','token_endpoint'=>$o.'/oauth.php?action=token','registration_endpoint'=>$o.'/oauth.php?action=register','revocation_endpoint'=>$o.'/oauth.php?action=revoke','response_types_supported'=>['code'],'grant_types_supported'=>['authorization_code'],'code_challenge_methods_supported'=>['S256'],'token_endpoint_auth_methods_supported'=>['none'],'scopes_supported'=>['cubo:read','cubo:write'],'authorization_response_iss_parameter_supported'=>true];}
 function oauth_redirect_allowed(mixed $u): bool {if(!is_string($u))return false;$p=parse_url($u);return ($p['scheme']??'')==='https'&&($p['host']??'')==='chatgpt.com'&&!isset($p['user'])&&!isset($p['pass'])&&!isset($p['query'])&&!isset($p['fragment'])&&!isset($p['port'])&&(($p['path']??'')==='/connector_platform_oauth_redirect'||preg_match('~^/connector/oauth/[a-zA-Z0-9_-]{1,100}$~D',$p['path']??'')===1);}
 function oauth_resources(): array {return [config()['app_origin'].'/mcp.php',config()['app_origin'].'/mcp-test.php'];}

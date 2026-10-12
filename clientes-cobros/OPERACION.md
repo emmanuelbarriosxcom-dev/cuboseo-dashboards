@@ -49,3 +49,31 @@ La conexión no está validada únicamente por instalar el endpoint. Debe demost
 ## Recuperación
 
 Conservar archivos y exportación privada previos, configuración, alta inicial deshabilitada y cron. Para revertir código, detener temporalmente escrituras, restaurar dashboard/validador/API y los módulos de la misma versión. Para revertir la activación del calendario, pausar `billingPaused` y las reglas; conservar los movimientos ya generados y revisar antes de cualquier restauración de datos. No restaurar un backup viejo sobre operaciones posteriores.
+
+## Corrección de sesión OAuth — 2026-10-12
+
+La entrada desde ChatGPT compartía `CUBOSEOSESSID` (`SameSite=Strict`) con
+la aplicación. Una navegación entre sitios puede omitir esa cookie, abrir
+una sesión nueva y perder `oauth_pending` en el siguiente POST. No se debe
+interpretar siempre ese caso como una caducidad temporal.
+
+OAuth usa ahora una sesión independiente `CUBOOAUTHSESSID`, restringida a
+`/oauth.php`, Secure/HttpOnly en HTTPS y SameSite=Lax. La cookie principal
+permanece Strict, sin cambios en bootstrap.php. Login conserva la solicitud
+al regenerar la sesión. Los formularios tienen destino explícito y un
+identificador de flujo; se rechazan formularios de otra solicitud/pestaña.
+La solicitud vence explícitamente a los 20 minutos. La ausencia de sesión
+y la caducidad real tienen mensajes distintos. CSRF, Origin, PKCE S256,
+cliente, recurso y redirect registrado siguen siendo obligatorios.
+
+Validación ejecutada: 18 pruebas Node, sin omisiones, con PHP 8.3 real y
+SQLite aislado. La nueva prueba HTTP recorre apertura, login, regeneración,
+consentimiento y callback; rechaza CSRF incorrecto, flujo cruzado, recurso
+incorrecto y consentimiento repetido. Las pruebas anteriores cubren PKCE,
+reuso del código, permisos, revocación y reintentos de escritura.
+
+Reversión: restaurar juntas las copias privadas de `private/oauth.php` y
+`public/oauth.php`; iniciar una solicitud nueva desde ChatGPT. No restaurar
+base de datos, calendarios ni configuración. La consulta y escritura desde
+el chat siguen pendientes de consentimiento del propietario, exclusivamente
+en `mcp-test.php`; producción no conectada.
