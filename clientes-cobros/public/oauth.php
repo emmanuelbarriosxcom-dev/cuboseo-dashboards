@@ -13,6 +13,9 @@ try {
  ensure($action==='authorize','Ruta no disponible.');oauth_session_boot();
  if($_SERVER['REQUEST_METHOD']==='GET'){oauth_pending_begin($_GET);}
  $a=oauth_pending_get($_SERVER['REQUEST_METHOD']==='POST'?($_POST['oauth_flow']??''):null);
+ // The validated OAuth callback must remain reachable after a consent POST.
+ // Other application pages retain their original self-only form policy.
+ header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self' ".$a['redirect_uri']);
  if($_SERVER['REQUEST_METHOD']==='POST'){
   require_csrf($_POST['csrf']??null);
   if(isset($_POST['username'])){ensure(limit_login($_POST['username']),'Demasiados intentos. Espera 15 minutos.');$q=db()->prepare('SELECT id,username,password_hash FROM cubo_users WHERE username=?');$q->execute([trim($_POST['username'])]);$u=$q->fetch();ensure($u&&password_verify($_POST['password']??'',$u['password_hash']),'Acceso no válido.');session_regenerate_id(true);$_SESSION['user_id']=(int)$u['id'];$_SESSION['password_stamp']=hash('sha256',$u['password_hash']);clear_login_limits($u['username']);}

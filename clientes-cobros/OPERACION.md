@@ -77,3 +77,15 @@ Reversión: restaurar juntas las copias privadas de `private/oauth.php` y
 base de datos, calendarios ni configuración. La consulta y escritura desde
 el chat siguen pendientes de consentimiento del propietario, exclusivamente
 en `mcp-test.php`; producción no conectada.
+
+### Callback de consentimiento — 2026-10-12
+
+La política heredada `form-action 'self'` también se aplicaba a OAuth.
+El consentimiento emite un 303 al callback de ChatGPT y consume la solicitud;
+los navegadores que aplican form-action al redirect pueden impedir ese regreso.
+Repetir el POST consumido devuelve «Falta la sesión», aunque el login hubiera
+sido válido. No se debe atribuir este mensaje por sí solo a la contraseña.
+OAuth añade ahora únicamente el redirect URI registrado y validado a su
+form-action. Las demás páginas mantienen la política original. Prueba HTTP
+PHP aislada verifica esa cabecera además del flujo login/consentimiento;
+18 pruebas completas pasan. Confirmación desde ChatGPT pendiente del propietario.
