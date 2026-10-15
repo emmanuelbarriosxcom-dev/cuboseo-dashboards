@@ -163,12 +163,12 @@ summary{min-height:44px}
 .table-expanded .table-bottom{flex:0 0 auto}
 
 /* Narrow expanded view: let the page scroll so wrapped controls cannot collapse the matrix. */
-@media (max-width:600px) and (orientation:portrait),(max-width:1000px) and (max-height:500px){
+@media (max-width:600px) and (orientation:portrait),(max-width:1100px) and (max-height:800px){
  body.table-expanded{overflow:auto}
  .table-expanded .main{position:relative;inset:auto;top:auto;right:auto;bottom:auto;left:auto;width:100%;height:auto;min-height:100vh;min-height:100dvh;margin:0;padding:10px;max-width:none;overflow:visible}
  .table-expanded #app{display:block;height:auto;min-height:0;overflow:visible}
- .table-expanded .matrix-container{display:block;flex:none;width:100%;height:clamp(260px,54vh,560px);height:clamp(260px,54dvh,560px);min-height:260px;max-height:none;overflow:hidden}
- .table-expanded .table-scroll{display:block;width:100%;height:100%;min-height:0;max-height:none;overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y}
+ .table-expanded .matrix-container{display:block;flex:none;width:100%;height:auto;min-height:0;max-height:none;overflow:visible}
+ .table-expanded .table-scroll{display:block;width:100%;height:clamp(260px,54vh,560px);height:clamp(260px,54dvh,560px);min-height:260px;max-height:none;overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y}
  .table-expanded .table-bottom{margin-top:10px}
  .table-expanded .advanced-filters[open]{flex:none}
 }
