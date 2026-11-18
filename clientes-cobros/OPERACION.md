@@ -112,3 +112,7 @@ igualdad completa, 84 fichas, 16 cobros, 3 pagos. Ninguna conexión de producci�
 Las referencias de propuesta, tokens, estados OAuth, datos y capturas quedan
 fuera del repositorio público. Los respaldos diarios y configuración no se
 modificaron. La autorización sigue siendo de una hora, sin refresh token.
+
+## Escritura directa desde el chat (`apply_change`) — 2026-11-18
+
+Por decisión del propietario, `apply_change` guarda en una sola llamada, sin enlace de aprobación ni contraseña: mismas acciones y campos que `prepare_operation`, validadas con `validate_state()` y guardadas con `save_state()` (snapshot, auditoría `MCP directo: <acción>`, control de revisión). `requestId` obligatorio e idempotente; `expectedRevision` opcional; scope `cubo:write`; límite 120/hora. Se desactiva con `'mcp_direct_write' => false` en `config.php`. El flujo `prepare_operation` → aprobación → `commit_operation` se conserva sin cambios.

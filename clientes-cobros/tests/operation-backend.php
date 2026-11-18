@@ -2,7 +2,7 @@
 declare(strict_types=1);
 // Real PHP + isolated PDO SQLite. This test never opens production config/database.
 $base=$argv[1];$tmp=sys_get_temp_dir().'/cubo-operation-'.bin2hex(random_bytes(6));mkdir($tmp,0700);foreach(['validate.php','storage.php','billing.php','operations.php','mcp-security.php','mcp-tools.php','oauth.php'] as $f)copy($base.'/private/'.$f,$tmp.'/'.$f);
-function config(): array {return ['app_origin'=>'https://example.test'];}
+function config(): array {return ($GLOBALS['cubo_test_config']??[])+['app_origin'=>'https://example.test'];}
 function db(): PDO {static $p;if($p)return $p;$p=new PDO('sqlite::memory:',null,null,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC]);$p->sqliteCreateFunction('UTC_TIMESTAMP',fn()=>gmdate('Y-m-d H:i:s'));return $p;}
 function read_state(): array {return mcp_read_state();}
 function check(bool $v,string $message): void {if(!$v)throw new RuntimeException($message);}
@@ -84,4 +84,15 @@ reject(fn()=>apply_operation($t,'inventada',[]),'operación inventada');
 // list_pending: excluye perdidos y marca vencidos.
 $tools=array_column(mcp_tools(),null,'name');check(count($tools['prepare_operation']['inputSchema']['properties']['action']['enum'])===10,'enum de acciones');
 $lp=mcp_call('list_pending',['includeLost'=>true],$u);check(isset($lp['charges'][0])&&array_key_exists('overdue',$lp['charges'][0])&&$lp['charges'][0]['overdue']===false,'list_pending overdue');reject(fn()=>mcp_call('list_pending',['otro'=>1],$u),'campo extra en list_pending');
+// apply_change: escritura directa, idempotente con requestId, control de revisión y de permisos.
+$rev0=read_state()['revision'];$d1=mcp_call('apply_change',['action'=>'client_upsert','data'=>['name'=>'Directo ficticio','status'=>'active'],'requestId'=>'chg_test_0001'],$u);check($d1['saved']===true&&$d1['replayed']===false&&$d1['revision']===$rev0+1,'apply_change');
+$d2=mcp_call('apply_change',['action'=>'client_upsert','data'=>['name'=>'Directo ficticio','status'=>'active'],'requestId'=>'chg_test_0001'],$u);check($d2['replayed']===true&&read_state()['revision']===$rev0+1,'apply_change duplicó');
+check(count(array_filter(read_state()['state']['clients'],fn($c)=>$c['name']==='Directo ficticio'))===1,'cliente duplicado');
+reject(fn()=>mcp_call('apply_change',['action'=>'client_upsert','data'=>['name'=>'Otro ficticio','status'=>'active'],'requestId'=>'chg_test_0002','expectedRevision'=>$rev0],$u),'revisión vieja aceptada');
+reject(fn()=>mcp_call('apply_change',['action'=>'client_upsert','data'=>['name'=>'Otro ficticio','status'=>'active'],'requestId'=>'x'],$u),'requestId corto');
+reject(fn()=>mcp_call('apply_change',['action'=>'client_upsert','data'=>['name'=>'Otro ficticio','status'=>'active'],'requestId'=>'chg_test_0003'],['id'=>1,'scopes'=>['cubo:read']]),'escritura sin scope');
+reject(fn()=>mcp_call('apply_change',['action'=>'payment','data'=>['chargeId'=>'q1','amount'=>999999],'requestId'=>'chg_test_0004'],$u),'sobrepago directo');check(read_state()['revision']===$rev0+1,'error escribió');
+$GLOBALS['cubo_test_config']=['mcp_direct_write'=>false];reject(fn()=>mcp_call('apply_change',['action'=>'client_upsert','data'=>['name'=>'Otro ficticio','status'=>'active'],'requestId'=>'chg_test_0005'],$u),'interruptor ignorado');$GLOBALS['cubo_test_config']=[];
+$tl=array_column(mcp_tools(),null,'name');check($tl['apply_change']['inputSchema']['properties']['action']['enum']===$tl['prepare_operation']['inputSchema']['properties']['action']['enum'],'enum apply_change');
+echo "DIRECT OK: apply_change, replay, revision, scope, switch.\n";
 $files=new RecursiveIteratorIterator(new RecursiveDirectoryIterator($tmp,FilesystemIterator::SKIP_DOTS),RecursiveIteratorIterator::CHILD_FIRST);foreach($files as $f)$f->isDir()?rmdir($f->getPathname()):unlink($f->getPathname());rmdir($tmp);echo "EXTENDED OK: charge_create/update/status, payment month/update/remove, opening_payment, collaboratorShare.\n";echo "BACKEND OK: isolated SQLite, read/write scopes, approval, partial/grouped payment, retry, conflict, PKCE, code replay and password revocation.\n";
