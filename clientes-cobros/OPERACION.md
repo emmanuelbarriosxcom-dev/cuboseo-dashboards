@@ -21,7 +21,7 @@ En la ficha, usar **Calendario automático** para pausar/reactivar o corregir un
 
 Los nuevos acuerdos de mes calendario configuran un inicio futuro explícito. La creación normal puede registrar únicamente su primer periodo actual autorizado. Los ciclos de aniversario y quincenales no se incorporan a esta nueva automatización: requieren un acuerdo específico; no se transforman silenciosamente a calendario.
 
-## MCP privado para ChatGPT
+## MCP privado para ChatGPT y Claude
 
 Transporte Streamable HTTP, POST JSON-RPC, con OAuth Authorization Code + PKCE S256 y metadatos de descubrimiento. Sin endpoint anónimo de datos y sin llamadas a modelos/API de OpenAI.
 
@@ -29,8 +29,9 @@ Transporte Streamable HTTP, POST JSON-RPC, con OAuth Authorization Code + PKCE S
 - Prueba: `https://clientes.cuboseo.com/mcp-test.php`.
 - Descubrimiento: `/.well-known/oauth-authorization-server` y `/.well-known/oauth-protected-resource`.
 - Scopes: `cubo:read`, `cubo:write`.
-- Tokens: una hora; no se implementa refresh token. Al vencer, volver a autorizar si ChatGPT lo solicita.
-- Redirects permitidos: exclusivamente los oficiales de ChatGPT configurados en el código; PKCE, `state`, recurso y cliente se verifican.
+- Tokens: access token de una hora y refresh token rotativo de 30 días (un solo uso, ligado a cliente, recurso y scopes; no puede ampliarlos). Cambiar la contraseña invalida ambos. `revoke` acepta cualquiera de los dos.
+- Redirects permitidos: exclusivamente los oficiales de ChatGPT (`chatgpt.com`) y de Claude (`https://claude.ai/api/mcp/auth_callback` y `https://claude.com/api/mcp/auth_callback`); un registro no puede mezclar proveedores. PKCE, `state`, recurso y cliente se verifican.
+- Claude: Configuración → Conectores → Añadir conector personalizado, con la URL de prueba o de producción. Sin client ID ni secreto: usa registro dinámico.
 - Cada escritura pasa por `prepare_operation` → revisión privada del propietario → `commit_operation`.
 - Las propuestas vinculan usuario, cliente OAuth, recurso, revisión e ID de operación. Un reintento no duplica movimientos. Un conflicto requiere revisar una propuesta nueva.
 - `search_clients`, `get_client`, `list_pending`: lectura.
@@ -44,7 +45,7 @@ El directorio privado `mcp-runtime/` almacena códigos, tokens y propuestas, con
 
 El propietario debe añadir la app/MCP desde ChatGPT web, con OAuth, y autorizar los permisos de la cuenta. Primero conectar la URL de prueba. Desde un chat, consultar el cliente ficticio, preparar una actualización ficticia, aprobarla en la web y solicitar guardar; consultar nuevamente y repetir el mismo commit para comprobar que no duplica. Solo después conectar producción.
 
-La conexión no está validada únicamente por instalar el endpoint. Debe demostrarse una consulta desde ChatGPT y una escritura en el entorno de prueba. La documentación de OpenAI usada es [Custom MCP servers](https://developers.openai.com/api/docs/guides/custom-mcp-server) y [Authentication](https://developers.openai.com/plugins/build/auth).
+La conexión no está validada únicamente por instalar el endpoint. Debe demostrarse una consulta y una escritura en el entorno de prueba desde cada cliente (ChatGPT y Claude). La documentación de OpenAI usada es [Custom MCP servers](https://developers.openai.com/api/docs/guides/custom-mcp-server) y [Authentication](https://developers.openai.com/plugins/build/auth).
 
 ## Recuperación
 

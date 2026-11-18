@@ -2,7 +2,7 @@
 declare(strict_types=1);
 require __DIR__.'/../private/bootstrap.php';require __DIR__.'/../private/validate.php';require __DIR__.'/../private/storage.php';require __DIR__.'/../private/operations.php';require __DIR__.'/../private/mcp-security.php';require __DIR__.'/../private/mcp-tools.php';
 headers_private();
-try{$user=mcp_token_user();}catch(Throwable $e){header('WWW-Authenticate: Bearer resource_metadata="'.config()['app_origin'].'/oauth.php?action=resource'.(defined('CUBO_MCP_TEST')?'&sandbox=1':'').'"');json_response(['error'=>'OAuth requerido.'],401);}
+try{$user=mcp_token_user();}catch(Throwable $e){header('WWW-Authenticate: Bearer resource_metadata="'.config()['app_origin'].'/oauth.php?action=resource'.(defined('CUBO_MCP_TEST')?'&sandbox=1':'').'", scope="cubo:read cubo:write"');json_response(['error'=>'OAuth requerido.'],401);}
 if($_SERVER['REQUEST_METHOD']!=='POST'){header('Allow: POST');json_response(['error'=>'Este transporte utiliza POST JSON.'],405);}
 try{
  mcp_rate_limit('mcp-'.$user['id'],500);$raw=file_get_contents('php://input');ensure(strlen($raw)<=100000,'Solicitud demasiado grande.');$r=json_decode($raw,true,32,JSON_THROW_ON_ERROR);ensure(is_array($r)&&($r['jsonrpc']??null)==='2.0'&&is_string($r['method']??null),'JSON-RPC inválido.');$id=$r['id']??null;

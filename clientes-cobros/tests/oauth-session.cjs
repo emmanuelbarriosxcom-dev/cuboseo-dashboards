@@ -20,5 +20,18 @@ test('PHP HTTP aislado: sesión OAuth conservada entre entrada, login y consenti
  x=await post({consent:'approve',csrf,oauth_flow:flow});assert.equal(x.r.status,303);const location=new URL(x.r.headers.get('location'));assert.equal(location.origin,'https://chatgpt.com');assert.equal(location.searchParams.get('state'),a.state);assert.ok(location.searchParams.get('code'));assert.equal(location.searchParams.get('iss'),origin);
  x=await post({consent:'approve',csrf,oauth_flow:flow});assert.equal(x.r.status,400);assert.match(x.html,/Falta la sesión/);
  const bad=await fetch(origin+'/oauth.php?'+new URLSearchParams({...a,resource:origin+'/wrong'}));assert.equal(bad.status,400);assert.match(await bad.text(),/Recurso OAuth no permitido/);
+ // Claude: registro dinámico, flujo completo por HTTP y renovación con refresh token.
+ const reg=async body=>fetch(origin+'/oauth.php?action=register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+ const CB='https://claude.ai/api/mcp/auth_callback';let rr=await reg({redirect_uris:[CB,'https://claude.com/api/mcp/auth_callback'],token_endpoint_auth_method:'none'});assert.equal(rr.status,201);const cc=await rr.json();assert.match(cc.client_id,/^claude_/);assert.equal(cc.client_name,'Claude · Cubo SEO');assert.deepEqual(cc.grant_types,['authorization_code','refresh_token']);
+ assert.equal((await reg({redirect_uris:['https://evil.test/api/mcp/auth_callback']})).status,400);assert.equal((await reg({redirect_uris:[CB,'https://chatgpt.com/connector_platform_oauth_redirect']})).status,400);
+ assert.ok((await (await fetch(origin+'/oauth.php?action=metadata')).json()).grant_types_supported.includes('refresh_token'));
+ const verifier=require('node:crypto').randomBytes(32).toString('base64url'),challenge=require('node:crypto').createHash('sha256').update(verifier).digest('base64url');
+ const ca={...a,client_id:cc.client_id,redirect_uri:CB,code_challenge:challenge,state:'claude-unique-state'};
+ const cg=await fetch(origin+'/oauth.php?'+new URLSearchParams(ca),{headers:{Cookie:cookie},redirect:'manual'});const chtml=await cg.text();assert.equal(cg.status,200);assert.match(chtml,/Conectar Claude/);assert.match(cg.headers.get('content-security-policy'),/form-action 'self' https:\/\/claude\.ai\/api\/mcp\/auth_callback/);
+ x=await post({consent:'approve',csrf:field(chtml,'csrf'),oauth_flow:field(chtml,'oauth_flow')});assert.equal(x.r.status,303);const cl=new URL(x.r.headers.get('location'));assert.equal(cl.origin+cl.pathname,CB);assert.equal(cl.searchParams.get('state'),ca.state);
+ const tok=async body=>fetch(origin+'/oauth.php?action=token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams(body)});
+ let t=await tok({grant_type:'authorization_code',code:cl.searchParams.get('code'),code_verifier:verifier,client_id:cc.client_id,redirect_uri:CB,resource:a.resource});assert.equal(t.status,200);const t1=await t.json();assert.ok(t1.access_token&&t1.refresh_token);assert.equal(t1.scope,'cubo:read cubo:write');
+ t=await tok({grant_type:'refresh_token',refresh_token:t1.refresh_token,client_id:cc.client_id,resource:a.resource});assert.equal(t.status,200);const t2=await t.json();assert.notEqual(t2.refresh_token,t1.refresh_token);
+ t=await tok({grant_type:'refresh_token',refresh_token:t1.refresh_token,client_id:cc.client_id});assert.equal(t.status,400);assert.equal((await t.json()).error,'invalid_grant');
  }finally{server.kill();fs.rmSync(tmp,{recursive:true,force:true});}
 });
